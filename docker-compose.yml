@@ -1,0 +1,14 @@
+---
+
+version: "3.2"
+
+services:
+  sdk:
+    build:
+      context: .
+      args:
+        UID: "${UID}"
+        GID: "${UID}"
+    container_name: rtbhouse-php-sdk
+    volumes:
+      - ./:/home/apps/code
