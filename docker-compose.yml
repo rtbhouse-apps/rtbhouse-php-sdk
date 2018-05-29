@@ -11,4 +11,5 @@ services:
         GID: "${UID}"
     container_name: rtbhouse-php-sdk
     volumes:
-      - ./:/home/apps/code
+      - ./src/:/home/apps/code/src
+      - ./tests/:/home/apps/code/tests

@@ -1,0 +1,23 @@
+{
+    "name": "rtbhouse/php-sdk",
+    "description": "RTB House SDK",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "RTBHouse\\": "src/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "RTB House Apps Team",
+            "email": "apps@rtbhouse.com"
+        }
+    ]
+}
