@@ -1,0 +1,4 @@
+<?php
+
+define('USERNAME', 'FIXME');
+define('PASSWORD', 'FIXME');

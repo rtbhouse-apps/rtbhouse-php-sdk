@@ -19,4 +19,4 @@ WORKDIR $HOME/code
 RUN $HOME/composer.phar install
 
 ENTRYPOINT ["/usr/local/bin/php"]
-CMD ["./vendor/bin/phpunit", "--bootstrap", "vendor/autoload.php", "tests/ReportsApiTest"]
+CMD ["./vendor/bin/phpunit", "--bootstrap", "vendor/autoload.php", "tests"]
