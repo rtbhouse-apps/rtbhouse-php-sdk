@@ -1,8 +1,9 @@
 {
-    "name": "rtbhouse/php-sdk",
+    "name": "rtbhouse/sdk",
     "description": "RTB House SDK",
     "type": "library",
     "require": {
+        "php": "^7.0",
         "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
