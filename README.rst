@@ -20,18 +20,25 @@ Usage example
 
 Let's write a script which fetches campaign stats (imps, clicks, postclicks) and shows the result.
 
-First, create ``config.php`` file with your credentials: ::
+First, create ``config.php`` file with your credentials:
+
+.. code-block:: php
 
     define('USERNAME', 'jdoe');
     define('PASSWORD', 'abcd1234');
 
 
+Then create ``example.php`` with code:
+
 .. code-block:: php
 
-    require_once(__DIR__.'/config.php');
+    require_once('vendor/autoload.php');
+    require_once('config.php');
 
-    $session = new \RTBHouse\ReportsApiSession(USERNAME, PASSWORD);
-    $data = $session->getUserInfo();
+    $api = new \RTBHouse\ReportsApiSession(USERNAME, PASSWORD);
+    $advertisers = $api->getAdvertisers();
+    $stats = $api->getCampaignStatsTotal($advertisers[0]['hash'], '2017-10-01', '2017-10-31', 'day');
+    print_r($stats);
 
 
 License
