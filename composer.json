@@ -20,5 +20,8 @@
             "name": "RTB House Apps Team",
             "email": "apps@rtbhouse.com"
         }
-    ]
+    ],
+    "scripts": {
+        "test": "vendor/bin/phpunit tests"
+    }
 }
