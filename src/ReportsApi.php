@@ -7,7 +7,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Psr\Http\Message\ResponseInterface;
 
-define('API_BASE_URL', 'https://panel.rtbhouse.com/api/');
+define('API_HOST', 'https://api.panel.rtbhouse.com');
+define('API_VERSION', 'v1');
 
 
 class ReportsApiException extends \Exception
@@ -62,6 +63,7 @@ class ReportsApiSession
     {
         $this->_username = $username;
         $this->_password = $password;
+        $this->_baseUrl = API_HOST.'/'.API_VERSION.'/';
     }
 
     /**
@@ -84,23 +86,20 @@ class ReportsApiSession
     protected function _create_session(): \GuzzleHttp\Client
     {
         $client = new \GuzzleHttp\Client([
-            'base_uri' => API_BASE_URL,
+            'base_uri' => $this->_baseUrl,
             'connect_timeout' => 2.0,
             'cookies' => true
         ]);
 
         try {
-            $client->request('POST', 'auth/login', ['json' => ['login' => $this->_username, 'password' => $this->_password]]);
+            $res = $client->request('POST', 'auth/login', ['json' => ['login' => $this->_username, 'password' => $this->_password]]);
         } catch (GuzzleRequestException $e) {
-            if ($e->hasResponse()) {
-                throw new ReportsApiRequestException($e->getResponse());
-            } else {
-                throw new ReportsApiException($e->getMessage());
-            }
+            $this->_handleError($e);
         } catch (GuzzleException $e) {
             throw new ReportsApiException($e->getMessage());
         }
 
+        $this->_validateResponse($res);
         return $client;
     }
 
@@ -121,20 +120,48 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
+    protected function _handleError(GuzzleRequestException $e)
+    {
+        if ($e->hasResponse()) {
+            $resp = $e->getResponse();
+            if ($resp->getStatusCode() === 410) {
+                $newestVersion = $resp->getHeader('X-Current-Api-Version')[0];
+                $msg = 'Unsupported api version ('.API_VERSION.'), '
+                    .'use newest version ('.$newestVersion.') by updating rtbhouse_sdk package.';
+                throw new ReportsApiException($msg);
+            } else {
+                throw new ReportsApiRequestException($resp);
+            }
+        } else {
+            throw new ReportsApiException($e->getMessage());
+        }
+    }
+
+    protected function _validateResponse(ResponseInterface $res)
+    {
+        $newestVersion = $res->getHeader('X-Current-Api-Version')[0];
+        if ($newestVersion && $newestVersion !== API_VERSION) {
+            $msg = 'Used api version ('.API_VERSION.') is outdated, use newest version ('.$newestVersion.') '
+                .'by updating rtbhouse_sdk package.';
+            trigger_error($msg, E_USER_WARNING);
+        }
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
     protected function _get(string $path, array $params = null)
     {
         try {
             $res = $this->_session()->request('GET', $path, ['query' => $params]);
         } catch (GuzzleRequestException $e) {
-            if ($e->hasResponse()) {
-                throw new ReportsApiRequestException($e->getResponse());
-            } else {
-                throw new ReportsApiException($e->getMessage());
-            }
+            $this->_handleError($e);
         } catch (GuzzleException $e) {
             throw new ReportsApiException($e->getMessage());
         }
 
+        $this->_validateResponse($res);
         return $this->_getData($res);
     }
 
