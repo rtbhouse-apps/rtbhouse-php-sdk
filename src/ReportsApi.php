@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Psr\Http\Message\ResponseInterface;
 
 define('API_HOST', 'https://api.panel.rtbhouse.com');
-define('API_VERSION', 'v1');
+define('API_VERSION', 'v2');
 
 
 class ReportsApiException extends \Exception
@@ -165,6 +165,23 @@ class ReportsApiSession
         return $this->_getData($res);
     }
 
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    protected function _getFromCursor(string $path, array $params = null)
+    {
+        $params['limit'] = 10000;
+        $res = $this->_get($path, $params);
+        $rows = $res['rows'];
+        while ($res['nextCursor']) {
+            $params['nextCursor'] = $res['nextCursor'];
+            $res = $this->_get($path, $params);
+            array_merge($rows, $res['rows']);
+        }
+
+        return $rows;
+    }
 
     /**
      * Account methods
@@ -347,7 +364,7 @@ class ReportsApiSession
      * @throws ReportsApiRequestException
      */
     function getRtbConversions(string $advHash, string $dayFrom, string $dayTo, string $conventionType = Conversions::ATTRIBUTED_POST_CLICK) {
-        return $this->_get("advertisers/${advHash}/conversions", [
+        return $this->_getFromCursor("advertisers/${advHash}/conversions", [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
             'conversionType' => $conventionType
