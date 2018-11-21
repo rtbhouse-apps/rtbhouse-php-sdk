@@ -367,7 +367,7 @@ class ReportsApiSession
         return $this->_getFromCursor("advertisers/${advHash}/conversions", [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
-            'conversionType' => $conventionType
+            'countConvention' => $conventionType
         ]);
     }
 
