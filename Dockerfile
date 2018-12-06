@@ -17,6 +17,8 @@ RUN mkdir ./code
 COPY --chown=apps:apps composer.* ./code/
 WORKDIR $HOME/code
 RUN $HOME/composer.phar install
+COPY --chown=apps:apps src/* ./src/
+COPY --chown=apps:apps tests/* ./tests/
 
 ENTRYPOINT ["/usr/local/bin/php"]
 CMD ["./vendor/bin/phpunit", "tests"]
