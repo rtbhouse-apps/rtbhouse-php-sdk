@@ -171,13 +171,13 @@ class ReportsApiSession
      */
     protected function _getFromCursor(string $path, array $params = null)
     {
-        $params['limit'] = 10000;
-        $res = $this->_get($path, $params);
+        $limit = 10000;
+        $res = $this->_get($path, array_merge($params, ['limit' => $limit]));
         $rows = $res['rows'];
+
         while ($res['nextCursor']) {
-            $params['nextCursor'] = $res['nextCursor'];
-            $res = $this->_get($path, $params);
-            array_merge($rows, $res['rows']);
+            $res = $this->_get($path, ['nextCursor' => $res['nextCursor'], 'limit' => $limit]);
+            $rows = array_merge($rows, $res['rows']);
         }
 
         return $rows;
