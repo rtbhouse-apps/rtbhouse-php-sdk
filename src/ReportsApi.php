@@ -267,21 +267,6 @@ class ReportsApiSession
     }
 
     /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getCampaignStatsTotal(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'day', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK): array
-    {
-        return $this->_get("advertisers/${advHash}/campaign-stats-merged", [
-            'dayFrom' => $dayFrom,
-            'dayTo' => $dayTo,
-            'groupBy' => $groupBy,
-            'countConvention' => $conventionType
-        ]);
-    }
-
-
-    /**
      * RTB methods
      */
 
@@ -298,12 +283,12 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    private function _getRtbStats(string $urlSuffix, string $advHash, string $dayFrom, string $dayTo, string $groupBy, string $conventionType, string $userSegment = null): array
+    private function _getRtbStats(string $urlSuffix, string $advHash, string $dayFrom, string $dayTo, array $groupBy, string $conventionType, string $userSegment = null): array
     {
         $params = [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
-            'groupBy' => $groupBy,
+            'groupBy' => join('-', $groupBy),
             'countConvention' => $conventionType
         ];
 
@@ -318,7 +303,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getRtbCampaignStats(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'day', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
+    function getRtbCampaignStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('day'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
     {
         return $this->_getRtbStats('campaign-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
     }
@@ -327,7 +312,16 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getRtbCategoryStats(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'categoryId', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
+    function getCampaignStatsTotal(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('day'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK): array
+    {
+        return $this->_getRtbStats('campaign-stats-merged', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType);
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    function getRtbCategoryStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('categoryId'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
     {
         return $this->_getRtbStats('category-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
     }
@@ -336,7 +330,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getRtbCreativeStats(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'creativeId', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
+    function getRtbCreativeStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('creativeId'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
     {
         return $this->_getRtbStats('creative-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
     }
@@ -345,7 +339,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getRtbDeviceStats(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'deviceType', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
+    function getRtbDeviceStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('deviceType'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
     {
         return $this->_getRtbStats('device-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
     }
@@ -354,7 +348,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getRtbCountryStats(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'country', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
+    function getRtbCountryStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('country'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
     {
         return $this->_getRtbStats('country-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
     }

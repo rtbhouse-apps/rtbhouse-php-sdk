@@ -13,7 +13,7 @@ use \RTBHouse\ReportsApi\UserSegment;
 require_once(__DIR__ . '/config.php');
 
 define('DAY_FROM', '2017-11-01');
-define('DAY_TO', '2017-11-02');
+define('DAY_TO', '2017-11-01');
 
 
 final class ReportsApiTest extends TestCase
@@ -181,12 +181,12 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    private function _testGetCampaignStatsTotal(string $groupBy, string $convention, $key = null)
+    private function _testGetCampaignStatsTotal(array $groupBy, string $convention, $key = null)
     {
         $stats = self::$api->getCampaignStatsTotal(self::$advertiser['hash'], DAY_FROM, DAY_TO, $groupBy, $convention);
         $this->assertNotEmpty($stats);
         $firstRow = $stats[0];
-        $this->assertArrayHasKey(($key ?? $groupBy), $firstRow);
+        $this->assertArrayHasKey(($key ?? $groupBy[0]), $firstRow);
         $this->assertArrayHasKey('impsCount', $firstRow);
         $this->assertArrayHasKey('clicksCount', $firstRow);
     }
@@ -197,13 +197,13 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiException
      */
     function testGetCampaignStatsTotal() {
-        $this->_testGetCampaignStatsTotal('day', Conversions::ALL_POST_CLICK);
-        $this->_testGetCampaignStatsTotal('day', Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetCampaignStatsTotal('day', Conversions::POST_VIEW);
+        $this->_testGetCampaignStatsTotal(array('day'), Conversions::ALL_POST_CLICK);
+        $this->_testGetCampaignStatsTotal(array('day'), Conversions::ATTRIBUTED_POST_CLICK);
+        $this->_testGetCampaignStatsTotal(array('day'), Conversions::POST_VIEW);
 
-        $this->_testGetCampaignStatsTotal('year', Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetCampaignStatsTotal('month', Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetCampaignStatsTotal('campaign', Conversions::ATTRIBUTED_POST_CLICK, 'subcampaign');
+        $this->_testGetCampaignStatsTotal(array('year'), Conversions::ATTRIBUTED_POST_CLICK);
+        $this->_testGetCampaignStatsTotal(array('month'), Conversions::ATTRIBUTED_POST_CLICK);
+        $this->_testGetCampaignStatsTotal(array('campaign'), Conversions::ATTRIBUTED_POST_CLICK, 'subcampaign');
     }
 
 
@@ -230,11 +230,11 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    private function _testGetRtbCampaignStats(string $groupBy, string $convention, $key = null, $segment = null) {
+    private function _testGetRtbCampaignStats(array $groupBy, string $convention, $key = null, $segment = null) {
         $stats = self::$api->getRtbCampaignStats(self::$advertiser['hash'], DAY_FROM, DAY_TO, $groupBy, $convention, $segment);
         $this->assertNotEmpty($stats);
         $firstRow = $stats[0];
-        $this->assertArrayHasKey(($key ?? $groupBy), $firstRow);
+        $this->assertArrayHasKey(($key ?? $groupBy[0]), $firstRow);
         $this->assertArrayHasKey('impsCount', $firstRow);
         $this->assertArrayHasKey('clicksCount', $firstRow);
     }
@@ -246,11 +246,11 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbCampaignStats()
     {
-        $this->_testGetRtbCampaignStats('day', Conversions::ALL_POST_CLICK);
-        $this->_testGetRtbCampaignStats('day', Conversions::ALL_POST_CLICK, null, UserSegment::VISITORS);
-        $this->_testGetRtbCampaignStats('month', Conversions::ALL_POST_CLICK);
-        $this->_testGetRtbCampaignStats('day', Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetRtbCampaignStats('day', Conversions::POST_VIEW);
+        $this->_testGetRtbCampaignStats(array('day'), Conversions::ALL_POST_CLICK);
+        $this->_testGetRtbCampaignStats(array('day'), Conversions::ALL_POST_CLICK, null, UserSegment::VISITORS);
+        $this->_testGetRtbCampaignStats(array('month'), Conversions::ALL_POST_CLICK);
+        $this->_testGetRtbCampaignStats(array('day'), Conversions::ATTRIBUTED_POST_CLICK);
+        $this->_testGetRtbCampaignStats(array('day'), Conversions::POST_VIEW);
     }
 
     /**

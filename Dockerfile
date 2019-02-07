@@ -21,4 +21,4 @@ COPY --chown=apps:apps src/* ./src/
 COPY --chown=apps:apps tests/* ./tests/
 
 ENTRYPOINT ["/usr/local/bin/php"]
-CMD ["./vendor/bin/phpunit", "tests"]
+CMD ["./vendor/bin/phpunit", "--log-junit", "results/results.xml", "tests"]
