@@ -321,7 +321,6 @@ final class ReportsApiTest extends TestCase
         $stats = self::$api->getRtbConversions(self::$advertiser['hash'], DAY_FROM, DAY_TO, $convention);
         $this->assertNotEmpty($stats);
         $firstRow = $stats[0];
-        $this->assertArrayHasKey('conversionType', $firstRow);
         $this->assertArrayHasKey('conversionValue', $firstRow);
         $this->assertArrayHasKey('conversionIdentifier', $firstRow);
     }
