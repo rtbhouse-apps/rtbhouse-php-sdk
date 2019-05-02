@@ -65,7 +65,7 @@ final class ReportsApiTest extends TestCase
     function testUnsupportedVersion()
     {
         $session = new ReportsApiSession(USERNAME, PASSWORD);
-        $session->_baseUrl = API_HOST.'/v999999/';
+        $session->_baseUrl = API_HOST.'/v1/';
         try {
             $data = $session->getUserInfo();
             $this->fail('Should raise an exception');
