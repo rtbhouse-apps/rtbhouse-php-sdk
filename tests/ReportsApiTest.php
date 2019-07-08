@@ -314,6 +314,22 @@ final class ReportsApiTest extends TestCase
     }
 
     /**
+     * @depends testGetAdvertisers
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    function testGetRtbCreativeCountryStats()
+    {
+        $stats = self::$api->getRtbCreativeCountryStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
+        $this->assertNotEmpty($stats);
+        $firstRow = $stats[0];
+        $this->assertArrayHasKey('creativeId', $firstRow);
+        $this->assertArrayHasKey('country', $firstRow);
+        $this->assertArrayHasKey('impsCount', $firstRow);
+        $this->assertArrayHasKey('clicksCount', $firstRow);
+    }
+
+    /**
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
