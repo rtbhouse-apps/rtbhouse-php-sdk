@@ -357,6 +357,15 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
+    function getRtbCreativeCountryStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('creativeId', 'country'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
+    {
+        return $this->_getRtbStats('creative-country-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
     function getRtbConversions(string $advHash, string $dayFrom, string $dayTo, string $conventionType = Conversions::ATTRIBUTED_POST_CLICK) {
         return $this->_getFromCursor("advertisers/${advHash}/conversions", [
             'dayFrom' => $dayFrom,

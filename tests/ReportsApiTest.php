@@ -12,8 +12,8 @@ use \RTBHouse\ReportsApi\UserSegment;
 
 require_once(__DIR__ . '/config.php');
 
-define('DAY_FROM', '2017-11-01');
-define('DAY_TO', '2017-11-01');
+define('DAY_FROM', '2019-05-09');
+define('DAY_TO', '2019-05-09');
 
 
 final class ReportsApiTest extends TestCase
@@ -308,6 +308,22 @@ final class ReportsApiTest extends TestCase
         $stats = self::$api->getRtbCountryStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
         $this->assertNotEmpty($stats);
         $firstRow = $stats[0];
+        $this->assertArrayHasKey('country', $firstRow);
+        $this->assertArrayHasKey('impsCount', $firstRow);
+        $this->assertArrayHasKey('clicksCount', $firstRow);
+    }
+
+    /**
+     * @depends testGetAdvertisers
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    function testGetRtbCreativeCountryStats()
+    {
+        $stats = self::$api->getRtbCreativeCountryStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
+        $this->assertNotEmpty($stats);
+        $firstRow = $stats[0];
+        $this->assertArrayHasKey('creativeId', $firstRow);
         $this->assertArrayHasKey('country', $firstRow);
         $this->assertArrayHasKey('impsCount', $firstRow);
         $this->assertArrayHasKey('clicksCount', $firstRow);
