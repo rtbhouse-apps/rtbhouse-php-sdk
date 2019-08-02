@@ -177,35 +177,6 @@ final class ReportsApiTest extends TestCase
         $this->assertArrayHasKey('day', $firstBill);
     }
 
-    /**
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    private function _testGetCampaignStatsTotal(array $groupBy, string $convention, $key = null)
-    {
-        $stats = self::$api->getCampaignStatsTotal(self::$advertiser['hash'], DAY_FROM, DAY_TO, $groupBy, $convention);
-        $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey(($key ?? $groupBy[0]), $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
-    }
-
-    /**
-     * @depends testGetAdvertisers
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    function testGetCampaignStatsTotal() {
-        $this->_testGetCampaignStatsTotal(array('day'), Conversions::ALL_POST_CLICK);
-        $this->_testGetCampaignStatsTotal(array('day'), Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetCampaignStatsTotal(array('day'), Conversions::POST_VIEW);
-
-        $this->_testGetCampaignStatsTotal(array('year'), Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetCampaignStatsTotal(array('month'), Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetCampaignStatsTotal(array('campaign'), Conversions::ATTRIBUTED_POST_CLICK, 'subcampaign');
-    }
-
 
     /**
      * RTB methods
@@ -226,108 +197,160 @@ final class ReportsApiTest extends TestCase
         $this->assertArrayHasKey('previewUrl', $firstCreative);
     }
 
-    /**
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    private function _testGetRtbCampaignStats(array $groupBy, string $convention, $key = null, $segment = null) {
-        $stats = self::$api->getRtbCampaignStats(self::$advertiser['hash'], DAY_FROM, DAY_TO, $groupBy, $convention, $segment);
+
+    private function _validateGetRtbStatsResponse($stats, $requiredFields)
+    {
         $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey(($key ?? $groupBy[0]), $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $stat = $stats[0];
+
+        $this->assertArrayHasKey('impsCount', $stat);
+        $this->assertArrayHasKey('clicksCount', $stat);
+
+        foreach($requiredFields as $requiredField)
+            $this->assertArrayHasKey($requiredField, $stat);
     }
+
 
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbCampaignStats()
+    function testGetRtbStats1()
     {
-        $this->_testGetRtbCampaignStats(array('day'), Conversions::ALL_POST_CLICK);
-        $this->_testGetRtbCampaignStats(array('day'), Conversions::ALL_POST_CLICK, null, UserSegment::VISITORS);
-        $this->_testGetRtbCampaignStats(array('month'), Conversions::ALL_POST_CLICK);
-        $this->_testGetRtbCampaignStats(array('day'), Conversions::ATTRIBUTED_POST_CLICK);
-        $this->_testGetRtbCampaignStats(array('day'), Conversions::POST_VIEW);
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'subcampaign'],
+                Conversions::ATTRIBUTED_POST_CLICK
+            ),
+            ['day', 'subcampaign', 'subcampaignHash']
+        );
     }
-
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbCategoryStats()
+    function testGetRtbStats2()
     {
-        $stats = self::$api->getRtbCategoryStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
-        $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey('categoryId', $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'subcampaign'],
+                Conversions::ATTRIBUTED_POST_CLICK,
+                [],
+                true
+            ),
+            ['day', 'subcampaign', 'subcampaignHash']
+        );
     }
-
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbCreativeStats()
+    function testGetRtbStats3()
     {
-        $stats = self::$api->getRtbCreativeStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
-        $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey('creativeId', $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'userSegment'],
+                Conversions::POST_VIEW
+            ),
+            ['day', 'userSegment']
+        );
     }
-
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbDeviceStats()
+    function testGetRtbStats4()
     {
-        $stats = self::$api->getRtbDeviceStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
-        $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey('deviceType', $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'deviceType'],
+                Conversions::ALL_POST_CLICK
+            ),
+            ['day', 'deviceType']
+        );
     }
-
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbCountryStats()
+    function testGetRtbStats5()
     {
-        $stats = self::$api->getRtbCountryStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
-        $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey('country', $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'creative'],
+                Conversions::ALL_POST_CLICK
+            ),
+            ['day', 'creative', 'creativeName', 'creativeType']
+        );
     }
-
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbCreativeCountryStats()
+    function testGetRtbStats6()
     {
-        $stats = self::$api->getRtbCreativeCountryStats(self::$advertiser['hash'], DAY_FROM, DAY_TO);
-        $this->assertNotEmpty($stats);
-        $firstRow = $stats[0];
-        $this->assertArrayHasKey('creativeId', $firstRow);
-        $this->assertArrayHasKey('country', $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'category'],
+                Conversions::ATTRIBUTED_POST_CLICK
+            ),
+            ['day', 'category', 'categoryName']
+        );
     }
+    /**
+     * @depends testGetAdvertisers
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    function testGetRtbStats7()
+    {
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'country'],
+                Conversions::ATTRIBUTED_POST_CLICK
+            ),
+            ['day', 'country']
+        );
+    }
+    /**
+     * @depends testGetAdvertisers
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    function testGetRtbStats8()
+    {
+        $this->_validateGetRtbStatsResponse(
+            self::$api->getRtbStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'creative', 'country'],
+                Conversions::ATTRIBUTED_POST_CLICK
+            ),
+            ['day', 'creative', 'country']
+        );
+    }
+
+
 
     /**
      * @throws ReportsApiRequestException

@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Psr\Http\Message\ResponseInterface;
 
 define('API_HOST', 'https://api.panel.rtbhouse.com');
-define('API_VERSION', 'v2');
+define('API_VERSION', 'v3');
 
 
 class ReportsApiException extends \Exception
@@ -50,6 +50,7 @@ class UserSegment
     const VISITORS = 'VISITORS';
     const SHOPPERS = 'SHOPPERS';
     const BUYERS = 'BUYERS';
+    const NEW_ = 'NEW';
 }
 
 
@@ -139,7 +140,8 @@ class ReportsApiSession
 
     protected function _validateResponse(ResponseInterface $res)
     {
-        $newestVersion = $res->getHeader('X-Current-Api-Version')[0];
+        $newestVersions = $res->getHeader('X-Current-Api-Version');
+        $newestVersion = $newestVersions ? $newestVersions[0] : null;
         if ($newestVersion && $newestVersion !== API_VERSION) {
             $msg = 'Used api version ('.API_VERSION.') is outdated, use newest version ('.$newestVersion.') '
                 .'by updating rtbhouse_sdk package.';
@@ -280,86 +282,33 @@ class ReportsApiSession
     }
 
     /**
+     * @param groupBy Subset of ['day', 'month', 'year', 'subcampaign', 'userSegment', 'deviceType', 'creative', 'categor', 'country']. Only selected combinations are available
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    private function _getRtbStats(string $urlSuffix, string $advHash, string $dayFrom, string $dayTo, array $groupBy, string $conventionType, string $userSegment = null): array
+    function getRtbStats(
+        string $advHash,
+        string $dayFrom, string $dayTo,
+        array $groupBy,
+        string $countConvention = Conversions::ATTRIBUTED_POST_CLICK,
+        ?array $userSegments = null,
+        bool $includeDpa = false
+    )
     {
         $params = [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
             'groupBy' => join('-', $groupBy),
-            'countConvention' => $conventionType
+            'countConvention' => $countConvention,
         ];
 
-        if (!is_null($userSegment)) {
-            $params['userSegment'] = $userSegment;
-        }
+        if (!is_null($userSegments))
+            $params['userSegments'] = join('-', $userSegments);
 
-        return $this->_get("advertisers/${advHash}/${urlSuffix}", $params);
-    }
+        if ($includeDpa)
+            $params['includeDpa'] = 'true';
 
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getRtbCampaignStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('day'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
-    {
-        return $this->_getRtbStats('campaign-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getCampaignStatsTotal(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('day'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK): array
-    {
-        return $this->_getRtbStats('campaign-stats-merged', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getRtbCategoryStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('categoryId'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
-    {
-        return $this->_getRtbStats('category-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getRtbCreativeStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('creativeId'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
-    {
-        return $this->_getRtbStats('creative-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getRtbDeviceStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('deviceType'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
-    {
-        return $this->_getRtbStats('device-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getRtbCountryStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('country'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
-    {
-        return $this->_getRtbStats('country-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getRtbCreativeCountryStats(string $advHash, string $dayFrom, string $dayTo, array $groupBy = array('creativeId', 'country'), string $conventionType = Conversions::ATTRIBUTED_POST_CLICK, string $userSegment = null): array
-    {
-        return $this->_getRtbStats('creative-country-stats', $advHash, $dayFrom, $dayTo, $groupBy, $conventionType, $userSegment);
+        return $this->_get("advertisers/${advHash}/rtb-stats", $params);
     }
 
     /**
