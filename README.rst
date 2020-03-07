@@ -37,7 +37,7 @@ Then create ``example.php`` with code:
 
     $api = new \RTBHouse\ReportsApi\ReportsApiSession(USERNAME, PASSWORD);
     $advertisers = $api->getAdvertisers();
-    $stats = $api->getCampaignStatsTotal($advertisers[0]['hash'], '2017-10-01', '2017-10-31', 'day');
+    $stats = $api->getRtbStats($advertisers[0]['hash'], '2017-10-01', '2017-10-31', ['day','subcampaign']);
     print_r($stats);
 
 
