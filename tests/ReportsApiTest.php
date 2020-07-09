@@ -112,7 +112,7 @@ final class ReportsApiTest extends TestCase
     function testGetInvoicingData()
     {
         $invData = self::$api->getInvoicingData(self::$advertiser['hash']);
-        $this->assertArrayHasKey('contact', $invData);
+        $this->assertArrayHasKey('invoicing', $invData);
     }
 
     /**
