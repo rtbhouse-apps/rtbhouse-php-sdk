@@ -191,10 +191,15 @@ final class ReportsApiTest extends TestCase
     {
         $rtbCreatives = self::$api->getRtbCreatives(self::$advertiser['hash']);
         $this->assertNotEmpty($rtbCreatives);
-        $firstCreative = $rtbCreatives[0];
-        $this->assertArrayHasKey('hash', $firstCreative);
-        $this->assertArrayHasKey('status', $firstCreative);
-        $this->assertArrayHasKey('previewUrl', $firstCreative);
+        $rtbCreative = $rtbCreatives[0];
+        $this->assertArrayHasKey('hash', $rtbCreative);
+        $this->assertArrayHasKey('status', $rtbCreative);
+        $this->assertArrayHasKey('previews', $rtbCreative);
+        $preview = $rtbCreative['previews'][0];
+        $this->assertArrayHasKey('width', $preview);
+        $this->assertArrayHasKey('height', $preview);
+        $this->assertArrayHasKey('offersNumber', $preview);
+        $this->assertArrayHasKey('previewUrl', $preview);
     }
 
 

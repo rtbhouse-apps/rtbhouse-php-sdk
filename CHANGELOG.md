@@ -1,3 +1,9 @@
+# v4.0.0
+This version adapts to latest api v4 changes.
+
+`getRtbCreatives` now provides faster results with different output:
+Refer to `https://panel.rtbhouse.com/api/docs` - `GET /advertisers/{hash}/rtb-creatives` for details
+
 # v3.0.0
 This version adapts to latest api v3. changes.
 

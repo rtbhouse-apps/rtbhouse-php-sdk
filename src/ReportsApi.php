@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Psr\Http\Message\ResponseInterface;
 
 define('API_HOST', 'https://api.panel.rtbhouse.com');
-define('API_VERSION', 'v3');
+define('API_VERSION', 'v4');
 
 
 class ReportsApiException extends \Exception
@@ -278,7 +278,7 @@ class ReportsApiSession
      */
     function getRtbCreatives(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}/creatives");
+        return $this->_get("advertisers/${advHash}/rtb-creatives");
     }
 
     /**
