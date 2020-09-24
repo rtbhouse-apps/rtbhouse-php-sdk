@@ -12,8 +12,10 @@ use \RTBHouse\ReportsApi\UserSegment;
 
 require_once(__DIR__ . '/config.php');
 
-define('DAY_FROM', '2019-05-09');
-define('DAY_TO', '2019-05-09');
+define('DAY_FROM', '2020-09-01');
+define('DAY_TO', '2020-09-01');
+define('DPA_DAY_FROM', '2019-05-09');
+define('DPA_DAY_TO', '2019-05-09');
 
 
 final class ReportsApiTest extends TestCase
@@ -423,7 +425,7 @@ final class ReportsApiTest extends TestCase
      */
     function testGetDpaCampaignStats()
     {
-        $dpaStats = self::$api->getDpaCampaignStats(self::$advertiser['hash'], DAY_FROM, DAY_TO, 'day');
+        $dpaStats = self::$api->getDpaCampaignStats(self::$advertiser['hash'], DPA_DAY_FROM, DPA_DAY_TO, 'day');
         $this->assertNotEmpty($dpaStats);
         $firstRow = $dpaStats[0];
         $this->assertArrayHasKey('day', $firstRow);
@@ -438,7 +440,7 @@ final class ReportsApiTest extends TestCase
      */
     function testGetDpaConversions()
     {
-        $dpaConversions = self::$api->getDpaConversions(self::$advertiser['hash'], DAY_FROM, DAY_TO);
+        $dpaConversions = self::$api->getDpaConversions(self::$advertiser['hash'], DPA_DAY_FROM, DPA_DAY_TO);
         $this->assertNotEmpty($dpaConversions);
         $firstRow = $dpaConversions[0];
         $this->assertArrayHasKey('conversionValue', $firstRow);
