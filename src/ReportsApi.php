@@ -7,8 +7,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Psr\Http\Message\ResponseInterface;
 
-define('API_HOST', 'https://api.panel.rtbhouse.com');
-define('API_VERSION', 'v4');
+define('API_HOST', 'http://localhost:5000');
+define('API_VERSION', 'api');
 
 
 class ReportsApiException extends \Exception
@@ -27,9 +27,12 @@ class ReportsApiRequestException extends ReportsApiException
     {
         $this->_resData = json_decode($res->getBody()->getContents(), true);
         if (is_array($this->_resData)) {
-            $this->message = $this->_resData['message'];
-            $this->appCode = $this->_resData['appCode'];
-            $this->errors = $this->_resData['errors'];
+            if (array_key_exists('message', $this->_resData))
+                $this->message = $this->_resData['message'];
+            if (array_key_exists('appCode', $this->_resData))
+                $this->appCode = $this->_resData['appCode'];
+            if (array_key_exists('errors', $this->_resData))
+                $this->errors = $this->_resData['errors'];
         } else {
             $this->message = "{$res->getReasonPhrase()} ({$res->getStatusCode()})";
         }
@@ -282,7 +285,6 @@ class ReportsApiSession
     }
 
     /**
-     * @param groupBy Subset of ['day', 'month', 'year', 'subcampaign', 'userSegment', 'deviceType', 'creative', 'categor', 'country']. Only selected combinations are available
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
@@ -290,23 +292,30 @@ class ReportsApiSession
         string $advHash,
         string $dayFrom, string $dayTo,
         array $groupBy,
-        string $countConvention = Conversions::ATTRIBUTED_POST_CLICK,
+        array $metrics,
+        ?string $countConvention = null,
+        ?string $subcampaigns = null,
         ?array $userSegments = null,
-        bool $includeDpa = false
-    )
-    {
+        ?array $deviceTypes = null
+    ) {
         $params = [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
             'groupBy' => join('-', $groupBy),
-            'countConvention' => $countConvention,
+            'metrics' => join('-', $metrics)
         ];
+
+        if (!is_null($countConvention))
+            $params['countConvention'] = $countConvention;
+
+        if (!is_null($subcampaigns))
+            $params['subcampaigns'] = $subcampaigns;
 
         if (!is_null($userSegments))
             $params['userSegments'] = join('-', $userSegments);
 
-        if ($includeDpa)
-            $params['includeDpa'] = 'true';
+        if (!is_null($deviceTypes))
+            $params['deviceTypes'] = join('-', $deviceTypes);
 
         return $this->_get("advertisers/${advHash}/rtb-stats", $params);
     }
@@ -350,14 +359,32 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getDpaCampaignStats(string $advHash, string $dayFrom, string $dayTo, string $groupBy = 'day', string $conventionType = Conversions::ATTRIBUTED_POST_CLICK): array
-    {
-        return $this->_get("advertisers/${advHash}/dpa/campaign-stats", [
+    function getDpaStats(
+        string $advHash,
+        string $dayFrom, string $dayTo,
+        array $groupBy,
+        array $metrics,
+        ?string $countConvention = null,
+        ?string $subcampaigns = null,
+        ?string $placement = null
+    ) {
+        $params = [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
-            'groupBy' => $groupBy,
-            'countConvention' => $conventionType
-        ]);
+            'groupBy' => join('-', $groupBy),
+            'metrics' => join('-', $metrics)
+        ];
+
+        if (!is_null($countConvention))
+            $params['countConvention'] = $countConvention;
+
+        if (!is_null($subcampaigns))
+            $params['subcampaigns'] = $subcampaigns;
+
+        if (!is_null($placement))
+            $params['placement'] = $placement;
+
+        return $this->_get("advertisers/${advHash}/dpa-stats", $params);
     }
 
     /**
@@ -370,5 +397,37 @@ class ReportsApiSession
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
         ]);
+    }
+
+    /**
+     * DPA + RTB Methods
+     */
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    function getSummaryStats(
+        string $advHash,
+        string $dayFrom, string $dayTo,
+        array $groupBy,
+        array $metrics,
+        ?string $countConvention = null,
+        ?string $subcampaigns = null
+    ) {
+        $params = [
+            'dayFrom' => $dayFrom,
+            'dayTo' => $dayTo,
+            'groupBy' => join('-', $groupBy),
+            'metrics' => join('-', $metrics)
+        ];
+
+        if (!is_null($countConvention))
+            $params['countConvention'] = $countConvention;
+
+        if (!is_null($subcampaigns))
+            $params['subcampaigns'] = $subcampaigns;
+
+        return $this->_get("advertisers/${advHash}/summary-stats", $params);
     }
 }
