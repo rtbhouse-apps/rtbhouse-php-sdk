@@ -7,8 +7,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Psr\Http\Message\ResponseInterface;
 
-define('API_HOST', 'http://localhost:5000');
-define('API_VERSION', 'api');
+define('API_HOST', 'https://api.panel.rtbhouse.com');
+define('API_VERSION', 'v5');
 
 
 class ReportsApiException extends \Exception
