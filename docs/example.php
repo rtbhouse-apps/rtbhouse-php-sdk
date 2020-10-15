@@ -10,7 +10,7 @@ $stats = $api->getSummaryStats(
     '2020-10-01',
     '2020-10-31',
     ['day'],
-    ['impsCount', 'clicksCount', 'campaignCost', 'conversionsCount', 'conversionsValue', 'cr', 'ctr', 'ecpc', 'ecpa', 'roas'],
+    ['impsCount', 'clicksCount', 'campaignCost', 'conversionsCount', 'conversionsValue', 'cr', 'ctr', 'ecpa'],
     \RTBHouse\ReportsApi\Conversions::ATTRIBUTED_POST_CLICK
 );
 print_r($stats);
