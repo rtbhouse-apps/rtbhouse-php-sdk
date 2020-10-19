@@ -205,13 +205,11 @@ final class ReportsApiTest extends TestCase
     }
 
 
-    private function _validateGetRtbStatsResponse($stats, $requiredFields)
+    private function _validateGetRtbDpaSummaryStatsResponse($stats, $requiredFields)
     {
+        $this->assertIsArray($stats);
         $this->assertNotEmpty($stats);
         $stat = $stats[0];
-
-        $this->assertArrayHasKey('impsCount', $stat);
-        $this->assertArrayHasKey('clicksCount', $stat);
 
         foreach($requiredFields as $requiredField)
             $this->assertArrayHasKey($requiredField, $stat);
@@ -225,14 +223,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats1()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'subcampaign'],
-                Conversions::ATTRIBUTED_POST_CLICK
+                ['impsCount', 'clicksCount'],
+                null
             ),
-            ['day', 'subcampaign', 'subcampaignHash']
+            ['day', 'subcampaign', 'subcampaignHash', 'impsCount', 'clicksCount']
         );
     }
     /**
@@ -242,16 +241,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats2()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'subcampaign'],
+                ['impsCount', 'clicksCount', 'conversionsCount'],
                 Conversions::ATTRIBUTED_POST_CLICK,
-                [],
-                true
             ),
-            ['day', 'subcampaign', 'subcampaignHash']
+            ['day', 'subcampaign', 'subcampaignHash', 'impsCount', 'clicksCount', 'conversionsCount']
         );
     }
     /**
@@ -261,14 +259,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats3()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'userSegment'],
+                ['cr'],
                 Conversions::POST_VIEW
             ),
-            ['day', 'userSegment']
+            ['day', 'userSegment', 'cr']
         );
     }
     /**
@@ -278,14 +277,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats4()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'deviceType'],
-                Conversions::ALL_POST_CLICK
+                ['impsCount', 'clicksCount'],
+                null
             ),
-            ['day', 'deviceType']
+            ['day', 'deviceType', 'impsCount', 'clicksCount']
         );
     }
     /**
@@ -295,14 +295,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats5()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'creative'],
-                Conversions::ALL_POST_CLICK
+                ['impsCount', 'clicksCount'],
+                null,
             ),
-            ['day', 'creative', 'creativeName', 'creativeType']
+            ['day', 'creative', 'creativeName', 'creativeType', 'impsCount', 'clicksCount']
         );
     }
     /**
@@ -312,14 +313,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats6()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'category'],
+                ['impsCount', 'clicksCount', 'conversionsCount'],
                 Conversions::ATTRIBUTED_POST_CLICK
             ),
-            ['day', 'category', 'categoryName']
+            ['day', 'category', 'categoryName', 'impsCount', 'clicksCount', 'conversionsCount']
         );
     }
     /**
@@ -329,14 +331,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats7()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'country'],
-                Conversions::ATTRIBUTED_POST_CLICK
+                ['impsCount', 'clicksCount'],
+                null
             ),
-            ['day', 'country']
+            ['day', 'country', 'impsCount', 'clicksCount']
         );
     }
     /**
@@ -346,14 +349,15 @@ final class ReportsApiTest extends TestCase
      */
     function testGetRtbStats8()
     {
-        $this->_validateGetRtbStatsResponse(
+        $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'creative', 'country'],
-                Conversions::ATTRIBUTED_POST_CLICK
+                ['impsCount', 'clicksCount'],
+                null
             ),
-            ['day', 'creative', 'country']
+            ['day', 'creative', 'country', 'impsCount', 'clicksCount']
         );
     }
 
@@ -385,7 +389,7 @@ final class ReportsApiTest extends TestCase
 
 
     /**
-     * RTB methods
+     * DPA methods
      */
 
     /**
@@ -423,14 +427,18 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetDpaCampaignStats()
+    function testGetDpaStats()
     {
-        $dpaStats = self::$api->getDpaCampaignStats(self::$advertiser['hash'], DPA_DAY_FROM, DPA_DAY_TO, 'day');
-        $this->assertNotEmpty($dpaStats);
-        $firstRow = $dpaStats[0];
-        $this->assertArrayHasKey('day', $firstRow);
-        $this->assertArrayHasKey('impsCount', $firstRow);
-        $this->assertArrayHasKey('clicksCount', $firstRow);
+        $this->_validateGetRtbDpaSummaryStatsResponse(
+            self::$api->getDpaStats(
+                self::$advertiser['hash'],
+                DPA_DAY_FROM, DPA_DAY_TO,
+                ['day'],
+                ['impsCount', 'clicksCount'],
+                null
+            ),
+            ['day', 'impsCount', 'clicksCount']
+        );
     }
 
     /**
@@ -445,6 +453,49 @@ final class ReportsApiTest extends TestCase
         $firstRow = $dpaConversions[0];
         $this->assertArrayHasKey('conversionValue', $firstRow);
         $this->assertArrayHasKey('conversionIdentifier', $firstRow);
+    }
+
+
+    /**
+     * RTB + DPA Methods
+     */
+
+    /**
+     * @depends testGetAdvertisers
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    function testGetSummaryStats1()
+    {
+        $this->_validateGetRtbDpaSummaryStatsResponse(
+            self::$api->getDpaStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'subcampaign'],
+                ['impsCount', 'clicksCount'],
+                null
+            ),
+            ['day', 'subcampaign', 'impsCount', 'clicksCount']
+        );
+    }
+
+    /**
+     * @depends testGetAdvertisers
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    function testGetSummaryStats2()
+    {
+        $this->_validateGetRtbDpaSummaryStatsResponse(
+            self::$api->getDpaStats(
+                self::$advertiser['hash'],
+                DAY_FROM, DAY_TO,
+                ['day', 'subcampaign'],
+                ['impsCount', 'clicksCount', 'conversionsCount'],
+                Conversions::ATTRIBUTED_POST_CLICK
+            ),
+            ['day', 'subcampaign', 'impsCount', 'clicksCount', 'conversionsCount']
+        );
     }
 
 }
