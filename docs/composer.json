@@ -1,6 +1,0 @@
-{
-    "name": "rtbhouse/sdk-example",
-    "require": {
-        "rtbhouse/sdk": "2.0"
-    }
-}
