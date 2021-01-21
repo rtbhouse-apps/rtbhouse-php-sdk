@@ -6,6 +6,7 @@ Overview
 
 This library provides an easy-to-use PHP interface to RTB House API. It allows you to read and manage you campaigns settings, browse offers, download statistics etc.
 
+API docs: https://panel.rtbhouse.com/api/docs
 
 Installation
 ------------
@@ -42,7 +43,7 @@ Then create ``example.php`` with code:
         '2020-10-01',
         '2020-10-31',
         ['day'],
-        ['impsCount', 'clicksCount', 'campaignCost', 'conversionsCount', 'conversionsValue', 'cr', 'ctr', 'ecpa'],
+        ['impsCount', 'clicksCount', 'campaignCost', 'conversionsCount', 'ctr'],
         \RTBHouse\ReportsApi\Conversions::ATTRIBUTED_POST_CLICK
     );
     print_r($stats);
