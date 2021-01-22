@@ -27,7 +27,7 @@ final class ReportsApiTest extends TestCase
     protected static $advertiser;
     protected static $dpaAccount;
 
-     static function setUpBeforeClass(): void
+    static function setUpBeforeClass(): void
     {
         self::$api = new ReportsApiSession(USERNAME, PASSWORD);
     }
