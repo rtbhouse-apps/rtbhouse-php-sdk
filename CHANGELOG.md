@@ -1,3 +1,9 @@
+# v5.0.2
+Support for PHP 8
+
+# v5.0.1
+Update usage example in README.rst
+
 # v5.0.0
 This version adapts to latest api v5 changes.
 See API docs: https://panel.rtbhouse.com/api/docs for details.
