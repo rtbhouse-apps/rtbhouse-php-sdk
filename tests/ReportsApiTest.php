@@ -409,20 +409,6 @@ final class ReportsApiTest extends TestCase
     }
 
     /**
-     * @depends testGetDpaAccounts
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    function testGetDpaCreatives()
-    {
-        $dpaCreatives = self::$api->getDpaCreatives(self::$dpaAccount['hash']);
-        $this->assertNotEmpty($dpaCreatives);
-        $firstRow = $dpaCreatives[0];
-        $this->assertArrayHasKey('adFormat', $firstRow);
-        $this->assertArrayHasKey('iframe', $firstRow);
-    }
-
-    /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
