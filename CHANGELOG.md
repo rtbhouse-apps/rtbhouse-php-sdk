@@ -1,3 +1,6 @@
+# v6.0.0
+Remove `getDpaCreatives` function
+
 # v5.0.2
 Support for PHP 8
 

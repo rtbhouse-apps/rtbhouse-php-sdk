@@ -350,15 +350,6 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getDpaCreatives(string $accountHash): array
-    {
-        return $this->_get("preview/dpa/${accountHash}");
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
     function getDpaStats(
         string $advHash,
         string $dayFrom, string $dayTo,
