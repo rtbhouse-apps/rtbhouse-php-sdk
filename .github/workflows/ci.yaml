@@ -1,0 +1,36 @@
+name: CI
+
+on: push
+
+jobs:
+  ci:
+    name: CI ${{ matrix.os }} / PHP ${{ matrix.php-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        php-version: [7.1, 7.2, 7.3, 7.4, 8.0]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: php-actions/composer@v5
+
+      - name: Create config
+        env:
+          SDK_TEST_CREDENTIALS: ${{ secrets.SDK_TEST_CREDENTIALS }}
+        run: |
+          cat << EOF > tests/config.php
+          <?php
+
+          define('USERNAME', '$(jq -r .username <<< ${SDK_TEST_CREDENTIALS})');
+          define('PASSWORD', '$(jq -r .password <<< ${SDK_TEST_CREDENTIALS})');
+          EOF
+
+      - name: PHPUnit Tests
+        uses: php-actions/phpunit@v2
+        with:
+          bootstrap: vendor/autoload.php
+          args: tests
