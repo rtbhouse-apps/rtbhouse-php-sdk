@@ -1,3 +1,6 @@
+# v7.0.0
+Remove `getDpaAccounts`, `getDpaStats`, `getDpaConversions` functions
+
 # v6.0.0
 Remove `getDpaCreatives` function
 

@@ -334,63 +334,6 @@ class ReportsApiSession
 
 
     /**
-     * DPA methods
-     */
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getDpaAccounts(string $advHash): array
-    {
-        return $this->_get("advertisers/${advHash}/dpa/accounts");
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getDpaStats(
-        string $advHash,
-        string $dayFrom, string $dayTo,
-        array $groupBy,
-        array $metrics,
-        ?string $countConvention = null,
-        ?string $subcampaigns = null,
-        ?string $placement = null
-    ) {
-        $params = [
-            'dayFrom' => $dayFrom,
-            'dayTo' => $dayTo,
-            'groupBy' => join('-', $groupBy),
-            'metrics' => join('-', $metrics)
-        ];
-
-        if (!is_null($countConvention))
-            $params['countConvention'] = $countConvention;
-
-        if (!is_null($subcampaigns))
-            $params['subcampaigns'] = $subcampaigns;
-
-        if (!is_null($placement))
-            $params['placement'] = $placement;
-
-        return $this->_get("advertisers/${advHash}/dpa-stats", $params);
-    }
-
-    /**
-     * @throws ReportsApiException
-     * @throws ReportsApiRequestException
-     */
-    function getDpaConversions(string $advHash, string $dayFrom, string $dayTo): array
-    {
-        return $this->_get("advertisers/${advHash}/dpa/conversions", [
-            'dayFrom' => $dayFrom,
-            'dayTo' => $dayTo,
-        ]);
-    }
-
-    /**
      * DPA + RTB Methods
      */
 
