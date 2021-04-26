@@ -389,60 +389,6 @@ final class ReportsApiTest extends TestCase
 
 
     /**
-     * DPA methods
-     */
-
-    /**
-     * @depends testGetAdvertisers
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    function testGetDpaAccounts()
-    {
-        $dpaAccounts = self::$api->getDpaAccounts(self::$advertiser['hash']);
-        $this->assertNotEmpty($dpaAccounts);
-        $firstRow = $dpaAccounts[0];
-        $this->assertArrayHasKey('hash', $firstRow);
-        $this->assertArrayHasKey('name', $firstRow);
-
-        self::$dpaAccount = $firstRow;
-    }
-
-    /**
-     * @depends testGetAdvertisers
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    function testGetDpaStats()
-    {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
-            self::$api->getDpaStats(
-                self::$advertiser['hash'],
-                DPA_DAY_FROM, DPA_DAY_TO,
-                ['day'],
-                ['impsCount', 'clicksCount'],
-                null
-            ),
-            ['day', 'impsCount', 'clicksCount']
-        );
-    }
-
-    /**
-     * @depends testGetAdvertisers
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    function testGetDpaConversions()
-    {
-        $dpaConversions = self::$api->getDpaConversions(self::$advertiser['hash'], DPA_DAY_FROM, DPA_DAY_TO);
-        $this->assertNotEmpty($dpaConversions);
-        $firstRow = $dpaConversions[0];
-        $this->assertArrayHasKey('conversionValue', $firstRow);
-        $this->assertArrayHasKey('conversionIdentifier', $firstRow);
-    }
-
-
-    /**
      * RTB + DPA Methods
      */
 
@@ -454,7 +400,7 @@ final class ReportsApiTest extends TestCase
     function testGetSummaryStats1()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
-            self::$api->getDpaStats(
+            self::$api->getSummaryStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'subcampaign'],
@@ -473,7 +419,7 @@ final class ReportsApiTest extends TestCase
     function testGetSummaryStats2()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
-            self::$api->getDpaStats(
+            self::$api->getSummaryStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'subcampaign'],
