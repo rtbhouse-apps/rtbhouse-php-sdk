@@ -400,7 +400,7 @@ final class ReportsApiTest extends TestCase
     function testGetSummaryStats1()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
-            self::$api->getDpaStats(
+            self::$api->getSummaryStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'subcampaign'],
@@ -419,7 +419,7 @@ final class ReportsApiTest extends TestCase
     function testGetSummaryStats2()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
-            self::$api->getDpaStats(
+            self::$api->getSummaryStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
                 ['day', 'subcampaign'],
