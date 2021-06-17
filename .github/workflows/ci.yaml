@@ -1,6 +1,6 @@
 name: CI
 
-on: push
+on: [ push, pull_request_target ]
 
 jobs:
   ci:
@@ -11,6 +11,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         php-version: [7.1, 7.2, 7.3, 7.4, 8.0]
+    environment: production
 
     steps:
       - name: Checkout
