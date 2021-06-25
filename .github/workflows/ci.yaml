@@ -2,7 +2,7 @@ name: CI
 
 on: 
   pull_request_target:
-    type: [labeled] 
+    types: [labeled] 
 
 jobs:
   ci:
