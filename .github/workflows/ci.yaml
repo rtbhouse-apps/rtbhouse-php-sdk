@@ -1,17 +1,20 @@
 name: CI
 
-on: [ push, pull_request_target ]
+on:
+  push:
+  pull_request_target:
+    types: [labeled] 
 
 jobs:
   ci:
     name: CI ${{ matrix.os }} / PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.os }}
+    if: contains(github.event.pull_request.labels.*.name, 'pr approved')
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
         php-version: [7.1, 7.2, 7.3, 7.4, 8.0]
-    environment: production
 
     steps:
       - name: Checkout
