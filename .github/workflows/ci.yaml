@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: php-actions/composer@v5
+      - uses: php-actions/composer@v6
 
       - name: Create config
         env:
