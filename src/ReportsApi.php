@@ -129,9 +129,11 @@ class ReportsApiSession
         if ($e->hasResponse()) {
             $resp = $e->getResponse();
             if ($resp->getStatusCode() === 410) {
-                $newestVersion = $resp->getHeader('X-Current-Api-Version')[0];
-                $msg = 'Unsupported api version ('.API_VERSION.'), '
-                    .'use newest version ('.$newestVersion.') by updating rtbhouse_sdk package.';
+                $msg = 'Unsupported api version ('.API_VERSION.')';
+                $newestVersion = $this->_getNewestApiVersion($resp);
+                if ($newestVersion) {
+                    $msg .= ', use newest version ('.$newestVersion.') by updating rtbhouse_sdk package.';
+                }
                 throw new ReportsApiException($msg);
             } else {
                 throw new ReportsApiRequestException($resp);
@@ -143,13 +145,19 @@ class ReportsApiSession
 
     protected function _validateResponse(ResponseInterface $res)
     {
-        $newestVersions = $res->getHeader('X-Current-Api-Version');
-        $newestVersion = $newestVersions ? $newestVersions[0] : null;
+        $newestVersion = $this->_getNewestApiVersion($res);
         if ($newestVersion && $newestVersion !== API_VERSION) {
             $msg = 'Used api version ('.API_VERSION.') is outdated, use newest version ('.$newestVersion.') '
                 .'by updating rtbhouse_sdk package.';
             trigger_error($msg, E_USER_WARNING);
         }
+    }
+
+    private function _getNewestApiVersion(ResponseInterface $res) 
+    {
+        $newestVersions = $res->getHeader('X-Current-Api-Version');
+        $newestVersion = !empty($newestVersions) ? $newestVersions[0] : null;
+        return $newestVersion;
     }
 
     /**

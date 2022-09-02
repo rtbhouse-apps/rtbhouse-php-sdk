@@ -12,8 +12,8 @@ use \RTBHouse\ReportsApi\UserSegment;
 
 require_once(__DIR__ . '/config.php');
 
-define('DAY_FROM', '2020-09-01');
-define('DAY_TO', '2020-09-01');
+define('DAY_FROM', '2022-09-01');
+define('DAY_TO', '2022-09-01');
 define('DPA_DAY_FROM', '2019-05-09');
 define('DPA_DAY_TO', '2019-05-09');
 
@@ -73,7 +73,7 @@ final class ReportsApiTest extends TestCase
             $this->fail('Should raise an exception');
         } catch (\Exception $e) {
             $this->assertInstanceOf(ReportsApiException::class, $e);
-            $this->assertRegexp('/Unsupported api version.*/', $e->__toString());
+            $this->assertMatchesRegularExpression('/Unsupported api version.*/', $e->__toString());
         }
     }
 
