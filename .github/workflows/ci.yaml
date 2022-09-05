@@ -9,12 +9,15 @@ jobs:
   ci:
     name: CI ${{ matrix.os }} / PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.os }}
-    if: contains(github.event.pull_request.labels.*.name, 'pr approved')
+    if: >
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'pr approved'))
+      || github.event_name == 'push'
+    
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-        php-version: [7.1, 7.2, 7.3, 7.4, 8.0]
+        os: ["ubuntu-20.04"]
+        php-version: ["7.1", "7.2", "7.3", "7.4", "8.0"]
 
     steps:
       - name: Checkout
