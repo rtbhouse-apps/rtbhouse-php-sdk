@@ -221,7 +221,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats1()
+    function testGetRtbStatsGetImpsClicksGroupByDaySubcampaign()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -239,7 +239,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats2()
+    function testGetRtbStatsGetImpsClicksConversionsGroupByDaySubcampaign()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -257,7 +257,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats3()
+    function testGetRtbStatsGetConversionsRateGroupByDayUsersegment()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -275,7 +275,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats4()
+    function testGetRtbStatsGetImpsClicksGroupByDayDeviceType()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -293,7 +293,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats5()
+    function testGetRtbStatsGetImpsClicksGroupByDayCreative()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -311,7 +311,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats6()
+    function testGetRtbStatsGetImpsClicksConversionsGroupByDayCategory()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -329,7 +329,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats7()
+    function testGetRtbStatsGetImpsClicksGroupByDayCountry()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -347,7 +347,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats8()
+    function testGetRtbStatsGetImpsClicksGroupByDayCreativeCountry()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getRtbStats(
@@ -397,7 +397,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetSummaryStats1()
+    function testGetSummaryStatsGetImpsClicksGroupByDaySubcampaign()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getSummaryStats(
@@ -416,7 +416,7 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetSummaryStats2()
+    function testGetSummaryStatsGetImpsClicksConversionsGroupByDaySubcampaign()
     {
         $this->_validateGetRtbDpaSummaryStatsResponse(
             self::$api->getSummaryStats(
