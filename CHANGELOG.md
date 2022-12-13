@@ -1,3 +1,6 @@
+# v7.0.1
+Tests' fixes, cleanup and rename, dependencies update.
+
 # v7.0.0
 Remove `getDpaAccounts`, `getDpaStats`, `getDpaConversions` functions
 
