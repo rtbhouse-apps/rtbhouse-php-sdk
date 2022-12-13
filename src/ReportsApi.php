@@ -340,11 +340,6 @@ class ReportsApiSession
         ]);
     }
 
-
-    /**
-     * DPA + RTB Methods
-     */
-
     /**
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
