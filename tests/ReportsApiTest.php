@@ -14,8 +14,6 @@ require_once(__DIR__ . '/config.php');
 
 define('DAY_FROM', '2022-09-01');
 define('DAY_TO', '2022-09-01');
-define('DPA_DAY_FROM', '2019-05-09');
-define('DPA_DAY_TO', '2019-05-09');
 
 
 final class ReportsApiTest extends TestCase
@@ -25,7 +23,6 @@ final class ReportsApiTest extends TestCase
      */
     protected static $api;
     protected static $advertiser;
-    protected static $dpaAccount;
 
     static function setUpBeforeClass(): void
     {
@@ -205,7 +202,7 @@ final class ReportsApiTest extends TestCase
     }
 
 
-    private function _validateGetRtbDpaSummaryStatsResponse($stats, $requiredFields)
+    private function _validateGetRtbSummaryStatsResponse($stats, $requiredFields)
     {
         $this->assertIsArray($stats);
         $this->assertNotEmpty($stats);
@@ -221,9 +218,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats1()
+    function testGetRtbStatsGetImpsClicksGroupByDaySubcampaign()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -239,9 +236,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats2()
+    function testGetRtbStatsGetImpsClicksConversionsGroupByDaySubcampaign()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -257,9 +254,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats3()
+    function testGetRtbStatsGetConversionsRateGroupByDayUsersegment()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -275,9 +272,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats4()
+    function testGetRtbStatsGetImpsClicksGroupByDayDeviceType()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -293,9 +290,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats5()
+    function testGetRtbStatsGetImpsClicksGroupByDayCreative()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -311,9 +308,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats6()
+    function testGetRtbStatsGetImpsClicksConversionsGroupByDayCategory()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -329,9 +326,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats7()
+    function testGetRtbStatsGetImpsClicksGroupByDayCountry()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -347,9 +344,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetRtbStats8()
+    function testGetRtbStatsGetImpsClicksGroupByDayCreativeCountry()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getRtbStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -387,19 +384,14 @@ final class ReportsApiTest extends TestCase
         $this->_testGetRtbConversions(Conversions::POST_VIEW);
     }
 
-
-    /**
-     * RTB + DPA Methods
-     */
-
     /**
      * @depends testGetAdvertisers
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetSummaryStats1()
+    function testGetSummaryStatsGetImpsClicksGroupByDaySubcampaign()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getSummaryStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
@@ -416,9 +408,9 @@ final class ReportsApiTest extends TestCase
      * @throws ReportsApiRequestException
      * @throws ReportsApiException
      */
-    function testGetSummaryStats2()
+    function testGetSummaryStatsGetImpsClicksConversionsGroupByDaySubcampaign()
     {
-        $this->_validateGetRtbDpaSummaryStatsResponse(
+        $this->_validateGetRtbSummaryStatsResponse(
             self::$api->getSummaryStats(
                 self::$advertiser['hash'],
                 DAY_FROM, DAY_TO,
