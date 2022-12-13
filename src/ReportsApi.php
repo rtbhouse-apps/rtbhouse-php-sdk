@@ -62,6 +62,7 @@ class ReportsApiSession
     private $_username;
     private $_password;
     private $_session;
+    public $_baseUrl;
 
     function __construct(string $username, string $password)
     {
@@ -228,7 +229,7 @@ class ReportsApiSession
      */
     function getAdvertiser(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}");
+        return $this->_get("advertisers/{$advHash}");
     }
 
     /**
@@ -237,7 +238,7 @@ class ReportsApiSession
      */
     function getInvoicingData(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}/client");
+        return $this->_get("advertisers/{$advHash}/client");
     }
 
     /**
@@ -246,7 +247,7 @@ class ReportsApiSession
      */
     function getOfferCategories(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}/offer-categories");
+        return $this->_get("advertisers/{$advHash}/offer-categories");
     }
 
     /**
@@ -255,7 +256,7 @@ class ReportsApiSession
      */
     function getOffers(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}/offers");
+        return $this->_get("advertisers/{$advHash}/offers");
     }
 
     /**
@@ -264,7 +265,7 @@ class ReportsApiSession
      */
     function getAdvertiserCampaigns(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}/campaigns");
+        return $this->_get("advertisers/{$advHash}/campaigns");
     }
 
     /**
@@ -273,7 +274,7 @@ class ReportsApiSession
      */
     function getBilling(string $advHash, string $dayFrom, string $dayTo): array
     {
-        return $this->_get("advertisers/${advHash}/billing", [
+        return $this->_get("advertisers/{$advHash}/billing", [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo
         ]);
@@ -289,7 +290,7 @@ class ReportsApiSession
      */
     function getRtbCreatives(string $advHash): array
     {
-        return $this->_get("advertisers/${advHash}/rtb-creatives");
+        return $this->_get("advertisers/{$advHash}/rtb-creatives");
     }
 
     /**
@@ -325,7 +326,7 @@ class ReportsApiSession
         if (!is_null($deviceTypes))
             $params['deviceTypes'] = join('-', $deviceTypes);
 
-        return $this->_get("advertisers/${advHash}/rtb-stats", $params);
+        return $this->_get("advertisers/{$advHash}/rtb-stats", $params);
     }
 
     /**
@@ -365,6 +366,6 @@ class ReportsApiSession
         if (!is_null($subcampaigns))
             $params['subcampaigns'] = $subcampaigns;
 
-        return $this->_get("advertisers/${advHash}/summary-stats", $params);
+        return $this->_get("advertisers/{$advHash}/summary-stats", $params);
     }
 }
