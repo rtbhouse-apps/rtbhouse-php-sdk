@@ -7,7 +7,7 @@
         "guzzlehttp/guzzle": "^7.5.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5.27"
+        "phpunit/phpunit": "^10.0.0"
     },
     "autoload": {
         "files": ["src/ReportsApi.php"]
