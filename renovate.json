@@ -2,5 +2,16 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>rtbhouse-apps/renovate-config-public"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "php-actions/phpunit"
+      ],
+      "allowedVersions": "v3"
+    }
   ]
 }
