@@ -334,7 +334,7 @@ class ReportsApiSession
      * @throws ReportsApiRequestException
      */
     function getRtbConversions(string $advHash, string $dayFrom, string $dayTo, string $conventionType = Conversions::ATTRIBUTED_POST_CLICK) {
-        return $this->_getFromCursor("advertisers/${advHash}/conversions", [
+        return $this->_getFromCursor("advertisers/{$advHash}/conversions", [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
             'countConvention' => $conventionType
