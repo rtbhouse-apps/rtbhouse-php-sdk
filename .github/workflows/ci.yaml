@@ -7,27 +7,49 @@ on:
 
 jobs:
   ci:
-    name: CI ${{ matrix.os }} / PHP ${{ matrix.php-version }}
-    runs-on: ${{ matrix.os }}
+    name: "CI ${{ matrix.os }} / PHP ${{ matrix.php-version }}"
+    runs-on: "${{ matrix.os }}"
     if: >
       (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'pr approved'))
-      || github.event_name == 'push'
+        || github.event_name == 'push'
     
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-20.04"]
-        php-version: ["7.1", "7.2", "7.3", "7.4", "8.0"]
+        os: ["ubuntu-22.04"]
+        php-version: ["7.4", "8.0", "8.1", "8.2"]
+
+    permissions:
+      contents: "read"
+      id-token: "write"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
 
-      - uses: php-actions/composer@v6
+      - name: "Composer install"
+        uses: "php-actions/composer@v6"
+        with:
+          php_version: "${{ matrix.php-version }}"
 
-      - name: Create config
+      - name: "Authenticate to Google Cloud"
+        id: "gcp-auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          token_format: "access_token"
+          workload_identity_provider: "${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}"
+          service_account: "${{ secrets.SERVICE_ACCOUNT }}"
+
+      - name: "Get secrets"
+        id: "secrets"
+        uses: "google-github-actions/get-secretmanager-secrets@v1"
+        with:
+          secrets: |-
+            SDK_TEST_CREDENTIALS:projects/${{ secrets.GCP_PROJECT_NAME }}/secrets/SDK_TEST_CREDENTIALS
+
+      - name: "Create config"
         env:
-          SDK_TEST_CREDENTIALS: ${{ secrets.SDK_TEST_CREDENTIALS }}
+          SDK_TEST_CREDENTIALS: "${{ steps.secrets.outputs.SDK_TEST_CREDENTIALS }}"
         run: |
           cat << EOF > tests/config.php
           <?php
@@ -36,8 +58,8 @@ jobs:
           define('PASSWORD', '$(jq -r .password <<< ${SDK_TEST_CREDENTIALS})');
           EOF
 
-      - name: PHPUnit Tests
-        uses: php-actions/phpunit@v3
+      - name: "PHPUnit Tests"
+        uses: "php-actions/phpunit@v3"
         with:
-          bootstrap: vendor/autoload.php
-          args: tests
+          bootstrap: "vendor/autoload.php"
+          args: "tests"

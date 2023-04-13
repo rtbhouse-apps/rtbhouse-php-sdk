@@ -7,10 +7,12 @@
         "guzzlehttp/guzzle": "^7.5.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0.0"
+        "phpunit/phpunit": ">=9"
     },
     "autoload": {
-        "files": ["src/ReportsApi.php"]
+        "files": [
+            "src/ReportsApi.php"
+        ]
     },
     "license": "MIT",
     "authors": [
