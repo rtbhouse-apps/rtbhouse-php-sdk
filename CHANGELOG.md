@@ -1,3 +1,10 @@
+# v8.1.0
+Added `utcOffsetHours` parameter for `getRtbStats` and `getSummaryStats`
+
+# v8.0.0
+Drop support for PHP: 7.1, 7.2, 7.3
+Add support for PHP: 8.1, 8.2
+
 # v7.0.1
 Tests' fixes, cleanup and rename, dependencies update.
 

@@ -303,6 +303,7 @@ class ReportsApiSession
         array $groupBy,
         array $metrics,
         ?string $countConvention = null,
+        ?int $utcOffsetHours = 0,
         ?string $subcampaigns = null,
         ?array $userSegments = null,
         ?array $deviceTypes = null
@@ -316,6 +317,9 @@ class ReportsApiSession
 
         if (!is_null($countConvention))
             $params['countConvention'] = $countConvention;
+
+        if ($utcOffsetHours != 0)
+            $params['utcOffsetHours'] = $utcOffsetHours;
 
         if (!is_null($subcampaigns))
             $params['subcampaigns'] = $subcampaigns;
@@ -351,6 +355,7 @@ class ReportsApiSession
         array $groupBy,
         array $metrics,
         ?string $countConvention = null,
+        ?int $utcOffsetHours = 0,
         ?string $subcampaigns = null
     ) {
         $params = [
@@ -362,6 +367,9 @@ class ReportsApiSession
 
         if (!is_null($countConvention))
             $params['countConvention'] = $countConvention;
+
+        if ($utcOffsetHours != 0)
+            $params['utcOffsetHours'] = $utcOffsetHours;
 
         if (!is_null($subcampaigns))
             $params['subcampaigns'] = $subcampaigns;
