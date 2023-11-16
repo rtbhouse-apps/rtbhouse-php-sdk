@@ -3,7 +3,7 @@
     "description": "RTB House SDK",
     "type": "library",
     "require": {
-        "php": "^7 || ^8",
+        "php": "^7.4 || ^8",
         "guzzlehttp/guzzle": "^7.5.0"
     },
     "require-dev": {
