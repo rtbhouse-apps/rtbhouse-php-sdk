@@ -2,6 +2,11 @@
     "name": "rtbhouse/sdk",
     "description": "RTB House SDK",
     "type": "library",
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    },
     "require": {
         "php": "^7.4 || ^8",
         "guzzlehttp/guzzle": "^7.5.0"
