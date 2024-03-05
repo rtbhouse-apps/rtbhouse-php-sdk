@@ -12,8 +12,8 @@ use \RTBHouse\ReportsApi\UserSegment;
 
 require_once(__DIR__ . '/config.php');
 
-define('DAY_FROM', '2022-09-01');
-define('DAY_TO', '2022-09-01');
+define('DAY_FROM', '2024-01-01');
+define('DAY_TO', '2024-01-01');
 
 
 final class ReportsApiTest extends TestCase
