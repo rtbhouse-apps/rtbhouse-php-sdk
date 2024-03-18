@@ -63,5 +63,5 @@ jobs:
         with:
           bootstrap: "vendor/autoload.php"
           args: "tests"
-          version: "9.6.17"
+          version: "composer"
           php_version: "${{ matrix.php-version }}"
