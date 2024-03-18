@@ -63,3 +63,5 @@ jobs:
         with:
           bootstrap: "vendor/autoload.php"
           args: "tests"
+          version: "9" # change to `composer` - blocked by https://github.com/php-actions/phpunit/issues/51#issuecomment-1723958575 
+          php_version: "${{ matrix.php-version }}"
