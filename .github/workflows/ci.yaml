@@ -59,9 +59,9 @@ jobs:
           EOF
 
       - name: "PHPUnit Tests"
-        uses: "php-actions/phpunit@v3.0.3"
+        uses: "php-actions/phpunit@composer-version--user"
         with:
           bootstrap: "vendor/autoload.php"
           args: "tests"
-          version: "composer"
+          version: "composer" # change to `composer` - blocked by https://github.com/php-actions/phpunit/issues/51#issuecomment-1723958575 
           php_version: "${{ matrix.php-version }}"
