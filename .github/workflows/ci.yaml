@@ -59,7 +59,7 @@ jobs:
           EOF
 
       - name: "PHPUnit Tests"
-        uses: "php-actions/phpunit@v3"
+        uses: "php-actions/phpunit@v3.0.3"
         with:
           bootstrap: "vendor/autoload.php"
           args: "tests"
