@@ -165,7 +165,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    protected function _get(string $path, array $params = null)
+    protected function _get(string $path, array $params = [])
     {
         try {
             $res = $this->_session()->request('GET', $path, ['query' => $params]);
@@ -183,7 +183,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    protected function _getFromCursor(string $path, array $params = null)
+    protected function _getFromCursor(string $path, array $params = [])
     {
         $limit = 10000;
         $res = $this->_get($path, array_merge($params, ['limit' => $limit]));
