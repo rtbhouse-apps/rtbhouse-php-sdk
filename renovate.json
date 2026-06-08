@@ -12,6 +12,15 @@
         "php-actions/phpunit"
       ],
       "allowedVersions": "v3"
+    },
+    {
+      "matchManagers": [
+        "composer"
+      ],
+      "matchPackageNames": [
+        "phpunit/phpunit"
+      ],
+      "enabled": false
     }
   ]
 }
