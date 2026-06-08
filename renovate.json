@@ -14,13 +14,14 @@
       "allowedVersions": "v3"
     },
     {
+      "description": "phpunit v10+ requires PHP >= 8.1, but this package supports PHP 7.4",
       "matchManagers": [
         "composer"
       ],
       "matchPackageNames": [
         "phpunit/phpunit"
       ],
-      "enabled": false
+      "allowedVersions": "<10"
     }
   ]
 }
