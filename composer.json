@@ -9,7 +9,10 @@
     },
     "require": {
         "php": "^7.4 || ^8",
-        "guzzlehttp/guzzle": "^7.5.0"
+        "guzzlehttp/guzzle": "^7.5.0",
+        "symfony/console": "^5.4",
+        "symfony/filesystem": "^5.4",
+        "symfony/lock": "^5.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^9"
@@ -17,8 +20,14 @@
     "autoload": {
         "files": [
             "src/ReportsApi.php"
+        ],
+        "classmap": [
+            "src/ApiTokens/"
         ]
     },
+    "bin": [
+        "bin/api-tokens"
+    ],
     "license": "MIT",
     "authors": [
         {
