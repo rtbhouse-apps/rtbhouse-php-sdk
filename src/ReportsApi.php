@@ -5,6 +5,9 @@ namespace RTBHouse\ReportsApi;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 define('API_HOST', 'https://api.panel.rtbhouse.com');
@@ -57,17 +60,50 @@ class UserSegment
 }
 
 
+interface Auth
+{
+}
+
+
+final class ApiTokenAuth implements Auth
+{
+    public string $token;
+
+    public function __construct(string $token)
+    {
+        $this->token = $token;
+    }
+}
+
+
+abstract class DynamicApiTokenAuth implements Auth
+{
+    abstract public function getToken(): string;
+}
+
+
+final class CookieAuth implements Auth
+{
+    public string $username;
+    public string $password;
+
+    public function __construct(string $username, string $password)
+    {
+        $this->username = $username;
+        $this->password = $password;
+    }
+}
+
+
 class ReportsApiSession
 {
-    private $_username;
-    private $_password;
+    private $_auth;
     private $_session;
     public $_baseUrl;
 
-    function __construct(string $username, string $password)
+    function __construct(Auth $auth)
     {
-        $this->_username = $username;
-        $this->_password = $password;
+        $this->_auth = $auth;
         $this->_baseUrl = API_HOST.'/'.API_VERSION.'/';
     }
 
@@ -90,14 +126,36 @@ class ReportsApiSession
      */
     protected function _create_session(): \GuzzleHttp\Client
     {
+        if ($this->_auth instanceof ApiTokenAuth) {
+            return $this->_createStaticApiTokenClient($this->_auth);
+        }
+
+        if ($this->_auth instanceof DynamicApiTokenAuth) {
+            return $this->_createDynamicApiTokenClient($this->_auth);
+        }
+
+        if ($this->_auth instanceof CookieAuth) {
+            return $this->_createCookieAuthenticatedClient($this->_auth);
+        }
+        throw new ReportsApiException('Unsupported authentication method: ' . get_class($this->_auth));
+    }
+
+    /**
+     * @throws ReportsApiRequestException
+     * @throws ReportsApiException
+     */
+    private function _createCookieAuthenticatedClient(CookieAuth $auth): \GuzzleHttp\Client
+    {
         $client = new \GuzzleHttp\Client([
             'base_uri' => $this->_baseUrl,
             'connect_timeout' => 2.0,
-            'cookies' => true
+            'cookies' => true,
         ]);
 
         try {
-            $res = $client->request('POST', 'auth/login', ['json' => ['login' => $this->_username, 'password' => $this->_password]]);
+            $res = $client->request('POST', 'auth/login', [
+                'json' => ['login' => $auth->username, 'password' => $auth->password],
+            ]);
         } catch (GuzzleRequestException $e) {
             $this->_handleError($e);
         } catch (GuzzleException $e) {
@@ -105,8 +163,37 @@ class ReportsApiSession
         }
 
         $this->_validateResponse($res);
+
         return $client;
     }
+
+    private function _createStaticApiTokenClient(ApiTokenAuth $auth): \GuzzleHttp\Client
+    {
+        return new \GuzzleHttp\Client([
+            'base_uri' => $this->_baseUrl,
+            'connect_timeout' => 2.0,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $auth->token,
+            ],
+        ]);
+    }
+
+    private function _createDynamicApiTokenClient(DynamicApiTokenAuth $auth): \GuzzleHttp\Client
+    {
+        // The token can rotate between requests,
+        // so it must be resolved on every call
+        $stack = HandlerStack::create();
+        $stack->push(Middleware::mapRequest(static function (RequestInterface $request) use ($auth) {
+            return $request->withHeader('Authorization', 'Bearer ' . $auth->getToken());
+        }));
+
+        return new \GuzzleHttp\Client([
+            'base_uri' => $this->_baseUrl,
+            'connect_timeout' => 2.0,
+            'handler' => $stack,
+        ]);
+    }
+
 
     /**
      * @throws ReportsApiException
@@ -167,8 +254,26 @@ class ReportsApiSession
      */
     protected function _get(string $path, array $params = [])
     {
+        return $this->_request('GET', $path, ['query' => $params]);
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    protected function _post(string $path, array $data = [])
+    {
+        return $this->_request('POST', $path, ['json' => $data]);
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    private function _request(string $method, string $path, array $options)
+    {
         try {
-            $res = $this->_session()->request('GET', $path, ['query' => $params]);
+            $res = $this->_session()->request($method, $path, $options);
         } catch (GuzzleRequestException $e) {
             $this->_handleError($e);
         } catch (GuzzleException $e) {
@@ -212,6 +317,28 @@ class ReportsApiSession
             'username' => $data['login'],
             'email' => $data['email']
         ];
+    }
+
+    /**
+     * @return array
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    function getCurrentApiToken(): array
+    {
+        $data = $this->_get('tokens/current');
+        return ['expiresAt' => $data['expiresAt']];
+    }
+
+    /**
+     * @return array
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    function rotateCurrentApiToken(): array
+    {
+        $data = $this->_post('tokens/current/rotate');
+        return ['token' => $data['token'], 'expiresAt' => $data['expiresAt']];
     }
 
     /**

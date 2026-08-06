@@ -1,3 +1,41 @@
+# v9.0.0
+[breaking change] `ReportsApiSession` constructor now takes a single `Auth` object instead of `($username, $password)`. You can choose from `ApiTokenAuth`, `DynamicApiTokenAuth` or `CookieAuth`(old username&password method). 
+
+## API Token Support
+
+Added support for API token authentication with automatic lifecycle management.
+
+### Initialize the API token in JSON file storage:
+
+First, create an API token in the Clients Panel (https://panel.rtbhouse.com/user/api-tokens), then initialize it in storage:
+
+```sh
+$ php vendor/bin/api-tokens init-json
+Paste your token: PASTE_YOUR_TOKEN_HERE
+```
+
+### Use the token manager as the auth backend in your ReportsApiSession:
+
+```php
+use RTBHouse\ReportsApi\ApiTokens\ApiTokenManager;
+use RTBHouse\ReportsApi\ApiTokens\JsonFileApiTokenStorage;
+use RTBHouse\ReportsApi\ReportsApiSession;
+
+$storage = new JsonFileApiTokenStorage();
+$auth = new ApiTokenManager($storage);
+
+$api = new ReportsApiSession($auth);
+$info = $api->getUserInfo();
+```
+
+### Schedule `keep-alive-json` command to run at least once a day to keep the token alive and rotate it automatically:
+
+```sh
+$ php vendor/bin/api-tokens keep-alive-json
+```
+
+See `README.rst` for more details and examples.
+
 # v8.1.0
 Added `utcOffsetHours` parameter for `getRtbStats` and `getSummaryStats`
 
