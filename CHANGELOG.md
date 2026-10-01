@@ -1,5 +1,24 @@
 # v9.0.0
-[breaking change] `ReportsApiSession` constructor now takes a single `Auth` object instead of `($username, $password)`. You can choose from `ApiTokenAuth`, `DynamicApiTokenAuth` or `CookieAuth`(old username&password method). 
+
+## Breaking changes
+
+- Minimum PHP version raised to 8.1. Drop support for PHP 7.4 and 8.0.
+- `ReportsApiSession::__construct()` signature changed from `($username, $password)` to
+  `(Auth $auth, ?string $baseUrl = null, float $timeout = DEFAULT_TIMEOUT_SECONDS)`.
+  Available `Auth` implementations: `ApiTokenManager` (recommended, with automatic token rotation),
+  `ApiTokenAuth` and `BasicAuth`; or extend `DynamicApiTokenAuth` with your own token source.
+- `CookieAuth` renamed to `BasicAuth`. It now sends an HTTP Basic `Authorization` header instead of
+  calling `POST auth/login` and keeping a session cookie.
+
+## Other changes
+
+- Return types were added across `ReportsApiSession`.
+- Every request now has a timeout, defaulting to 60s (previously only a 2s connect timeout was set), so a hung response can no longer block a caller indefinitely. It can be overridden per
+  session: `new ReportsApiSession($auth, timeout: 10.0)`.
+- A malformed JSON response now raises `ReportsApiException` as intended, instead of emitting a
+  PHP warning and returning `null`.
+- Added `symfony/console` (the API tokens CLI), `symfony/filesystem` and `symfony/lock` (token
+  storage), all `^6.4`.
 
 ## API Token Support
 

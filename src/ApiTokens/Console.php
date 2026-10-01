@@ -42,24 +42,38 @@ Examples:
 
 namespace RTBHouse\ReportsApi\ApiTokens;
 
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+final class ConsoleApplication extends Application
+{
+    public function __construct()
+    {
+        parent::__construct('rtbhouse-php-sdk');
+
+        $this->add(new InitJsonCommand());
+        $this->add(new KeepAliveJsonCommand());
+    }
+}
+
+
+#[AsCommand(
+    name: 'init-json',
+    description: 'Initialize JSON file API token storage from a token.'
+)]
 final class InitJsonCommand extends Command
 {
-    protected static $defaultName = 'init-json';
-
     protected function configure(): void
     {
         $this
-            ->setName('init-json')
-            ->setDescription('Initialize JSON file API token storage from a token.')
             ->setHelp(<<<'HELP'
-Initialize API token in JSON file storage. 
-Reads the token from stdin if input is piped, otherwise prompts interactively. 
+Initialize API token in JSON file storage.
+Reads the token from stdin if input is piped, otherwise prompts interactively.
 
 NOTE: First API token can be created in the Clients Panel under Account > API Tokens section.
 
@@ -84,10 +98,12 @@ HELP
             $manager->configure($token);
         } catch (\Throwable $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
+
             return Command::FAILURE;
         }
 
         $output->writeln('<info>API token configured.</info>');
+
         return Command::SUCCESS;
     }
 
@@ -108,19 +124,19 @@ HELP
 }
 
 
+#[AsCommand(
+    name: 'keep-alive-json',
+    description: 'Keep the JSON file API token alive, rotating it if needed.'
+)]
 final class KeepAliveJsonCommand extends Command
 {
-    protected static $defaultName = 'keep-alive-json';
-
     protected function configure(): void
     {
         $this
-            ->setName('keep-alive-json')
-            ->setDescription('Keep the JSON file API token alive, rotating it if needed.')
             ->setHelp(<<<'HELP'
-Refresh the last activity timestamp of the API token stored in the JSON file. 
-If the token is in the rotation window, it will be rotated and saved 
-unless --skip-auto-rotate is set. 
+Refresh the last activity timestamp of the API token stored in the JSON file.
+If the token is in the rotation window, it will be rotated and saved
+unless --skip-auto-rotate is set.
 Can also be used to verify that the token is valid.
 
   <info>%command.full_name%</info>                          keep alive, auto-rotate when due
@@ -129,7 +145,12 @@ Can also be used to verify that the token is valid.
 HELP
             )
             ->addOption('path', null, InputOption::VALUE_REQUIRED, 'Path to the token JSON file.')
-            ->addOption('skip-auto-rotate', null, InputOption::VALUE_NONE, 'Do not rotate even if inside the rotation window.');
+            ->addOption(
+                'skip-auto-rotate',
+                null,
+                InputOption::VALUE_NONE,
+                'Do not rotate even if inside the rotation window.'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -141,13 +162,15 @@ HELP
         $manager = new ApiTokenManager($storage);
 
         try {
-            $manager->keepAlive(!$skipAutoRotate);
+            $manager->keepAlive(autoRotate: !$skipAutoRotate);
         } catch (\Throwable $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
+
             return Command::FAILURE;
         }
 
         $output->writeln('<info>Token valid.</info>');
+
         return Command::SUCCESS;
     }
 }

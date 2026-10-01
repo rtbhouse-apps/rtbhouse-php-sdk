@@ -23,7 +23,7 @@ final class JsonFileApiTokenStorageTest extends TestCase
         $this->filesystem = new Filesystem();
         $this->dir = sys_get_temp_dir() . '/rtb_jsonfile_' . uniqid();
         $this->path = $this->dir . '/api_token.json';
-        $this->apiToken = new ApiToken(str_repeat('a', 43), new \DateTimeImmutable('2050-01-01T00:00:00+00:00'));
+        $this->apiToken = new ApiToken(str_repeat('a', ApiToken::TOKEN_LENGTH), new \DateTimeImmutable('2050-01-01T00:00:00+00:00'));
     }
 
     protected function tearDown(): void

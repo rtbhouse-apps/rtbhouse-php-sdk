@@ -42,8 +42,6 @@ final class ApiTokenManagerTest extends TestCase
         return new InMemoryApiTokenStorage(new ApiToken(self::TOKEN, new \DateTimeImmutable($expiresAt)));
     }
 
-    // configre() tests
-
     public function testConfigureRejectsTokenWithWrongLength(): void
     {
         $manager = $this->buildManagerWithMockedSession(new InMemoryApiTokenStorage(null));
@@ -64,8 +62,6 @@ final class ApiTokenManagerTest extends TestCase
         $this->assertSame(self::TOKEN, $stored->token);
         $this->assertEquals(new \DateTimeImmutable(self::FAR_FUTURE), $stored->expiresAt);
     }
-
-    // getToken() tests
 
     public function testGetTokenReturnsStoredTokenWellBeforeExpiry(): void
     {
@@ -141,8 +137,6 @@ final class ApiTokenManagerTest extends TestCase
         $manager->getToken();
     }
 
-
-    // KeepAlive() tests
 
     public function testKeepAlivePingsEndpointAndRotatesInsideWindow(): void
     {

@@ -12,7 +12,7 @@ final class InMemoryApiTokenStorageTest extends TestCase
 {
     private function apiToken(): ApiToken
     {
-        return new ApiToken(str_repeat('a', 43), new \DateTimeImmutable('2050-01-01T00:00:00+00:00'));
+        return new ApiToken(str_repeat('a', ApiToken::TOKEN_LENGTH), new \DateTimeImmutable('2050-01-01T00:00:00+00:00'));
     }
 
     public function testLoadThrowsWhenNoTokenStored(): void

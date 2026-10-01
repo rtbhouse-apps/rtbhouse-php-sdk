@@ -3,13 +3,19 @@ declare(strict_types=1);
 
 namespace RTBHouse\ReportsApi\ApiTokens;
 
+/**
+ * Keeps the token in memory only, for scenarios where true persistence is not needed.
+ */
 final class InMemoryApiTokenStorage extends ApiTokenStorage
 {
-    private ?ApiToken $apiToken;
+    public function __construct(
+        private ?ApiToken $apiToken
+    ) {
+    }
 
-    public function __construct(?ApiToken $apiToken)
+    public function acquireForSave(callable $callback): mixed
     {
-        $this->apiToken = $apiToken;
+        return $callback();
     }
 
     public function load(): ApiToken
@@ -24,10 +30,5 @@ final class InMemoryApiTokenStorage extends ApiTokenStorage
     public function save(ApiToken $apiToken): void
     {
         $this->apiToken = $apiToken;
-    }
-
-    public function acquireForSave(callable $callback)
-    {
-        return $callback();
     }
 }

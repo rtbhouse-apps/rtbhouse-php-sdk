@@ -8,7 +8,7 @@ use RTBHouse\ReportsApi\ApiTokens\ApiToken;
 
 final class ApiTokenTest extends TestCase
 {
-    private const VALID_TOKEN = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; // 43 chars
+    private const VALID_TOKEN = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; // ApiToken::TOKEN_LENGTH
     private const EXPIRES_AT_STR = '2026-07-01T11:37:44+00:00';
 
     public function testToJson(): void
@@ -17,9 +17,9 @@ final class ApiTokenTest extends TestCase
 
         $data = json_decode($apiToken->toJson(), true);
 
-        $this->assertSame(['token', 'expiresAt'], array_keys($data));
+        $this->assertSame(['token', 'expires_at'], array_keys($data));
         $this->assertSame(self::VALID_TOKEN, $data['token']);
-        $this->assertSame(self::EXPIRES_AT_STR, $data['expiresAt']);
+        $this->assertSame(self::EXPIRES_AT_STR, $data['expires_at']);
     }
 
     public function testFromJson(): void
@@ -53,6 +53,6 @@ final class ApiTokenTest extends TestCase
     public function testFromJsonRejectsUnparsableExpiresAt(): void
     {
         $this->expectException(\UnexpectedValueException::class);
-        ApiToken::fromJson(json_encode(['token' => self::VALID_TOKEN, 'expiresAt' => 'not-a-date']));
+        ApiToken::fromJson(json_encode(['token' => self::VALID_TOKEN, 'expires_at' => 'not-a-date']));
     }
 }

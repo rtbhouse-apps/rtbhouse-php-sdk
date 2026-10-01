@@ -5,13 +5,12 @@ namespace RTBHouse\ReportsApi\ApiTokens;
 
 final class ApiToken
 {
-    public string $token;
-    public \DateTimeImmutable $expiresAt;
+    public const TOKEN_LENGTH = 43;
 
-    public function __construct(string $token, \DateTimeImmutable $expiresAt)
-    {
-        $this->token = $token;
-        $this->expiresAt = $expiresAt;
+    public function __construct(
+        public readonly string $token,
+        public readonly \DateTimeImmutable $expiresAt
+    ) {
     }
 
     /**
@@ -20,15 +19,18 @@ final class ApiToken
      */
     public static function fromJson(string $json): self
     {
-        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        if (!is_array($data) || !isset($data['token'], $data['expiresAt'])) {
+        $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        if (!is_array($data) || !isset($data['token'], $data['expires_at'])) {
             throw new \UnexpectedValueException('Malformed API token data.');
         }
 
         try {
-            $expiresAt = new \DateTimeImmutable((string) $data['expiresAt']);
+            $expiresAt = new \DateTimeImmutable((string) $data['expires_at']);
         } catch (\Exception $exception) {
-            throw new \UnexpectedValueException('Invalid API token expiresAt data format": ' . $exception->getMessage(), 0, $exception);
+            throw new \UnexpectedValueException(
+                'Invalid API token expires_at data format: ' . $exception->getMessage(),
+                previous: $exception
+            );
         }
 
         return new self((string) $data['token'], $expiresAt);
@@ -41,7 +43,7 @@ final class ApiToken
     {
         return json_encode([
             'token' => $this->token,
-            'expiresAt' => $this->expiresAt->format(\DateTimeInterface::ATOM),
-        ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+            'expires_at' => $this->expiresAt->format(\DateTimeInterface::ATOM),
+        ], flags: JSON_THROW_ON_ERROR);
     }
 }

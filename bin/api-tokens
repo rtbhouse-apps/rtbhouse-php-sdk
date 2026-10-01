@@ -2,6 +2,11 @@
 <?php
 declare(strict_types=1);
 
+use RTBHouse\ReportsApi\ApiTokens\ConsoleApplication;
+
+// The location of autoload.php depends on how the SDK was installed:
+//  - as a Composer dependency, this script runs from vendor/rtbhouse/sdk/bin/
+//  - as a local project (a working copy of this repository), vendor/ sits next to bin/.
 $autoload = null;
 foreach ([__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php'] as $candidate) {
     if (is_file($candidate)) {
@@ -15,11 +20,4 @@ if ($autoload === null) {
 }
 require $autoload;
 
-use RTBHouse\ReportsApi\ApiTokens\InitJsonCommand;
-use RTBHouse\ReportsApi\ApiTokens\KeepAliveJsonCommand;
-use Symfony\Component\Console\Application;
-
-$app = new Application('rtbhouse-php-sdk');
-$app->add(new InitJsonCommand());
-$app->add(new KeepAliveJsonCommand());
-$app->run();
+exit((new ConsoleApplication())->run());

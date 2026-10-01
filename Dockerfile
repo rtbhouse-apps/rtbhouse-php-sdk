@@ -16,10 +16,14 @@ RUN ./install_composer.sh
 
 RUN mkdir ./code
 COPY --chown=apps:apps composer.* ./code/
+
 WORKDIR $HOME/code
+
+COPY --chown=apps:apps src/ ./src/
+COPY --chown=apps:apps tests/ ./tests/
+COPY --chown=apps:apps bin/api-tokens ./bin/api-tokens
+
 RUN $HOME/composer.phar install
-COPY --chown=apps:apps src/* ./src/
-COPY --chown=apps:apps tests/* ./tests/
 
 ENTRYPOINT ["/usr/local/bin/php"]
 CMD ["./vendor/bin/phpunit", "--log-junit", "results/results.xml", "tests"]

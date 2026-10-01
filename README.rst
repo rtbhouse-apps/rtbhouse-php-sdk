@@ -28,9 +28,10 @@ Now you can initialize the API token in local file storage. Paste your API token
     $ php vendor/bin/api-tokens init-json
     Paste your token: PASTE_YOUR_TOKEN_HERE
 
-The authentication token is now ready to use. As long as you use it with the client frequently enough, the SDK will keep the token valid and rotate it automatically (for details see `API Token Authentication` below):
+The authentication token is now ready to use. As long as you use it with the client frequently enough, the SDK will keep the token valid and rotate it automatically (for details see `API Token Authentication`_ below):
 
 .. code-block:: php
+
     <?php
 
     require_once('vendor/autoload.php');
@@ -59,7 +60,11 @@ The authentication token is now ready to use. As long as you use it with the cli
 Authentication methods
 ----------------------
 
-The SDK supports several authentication methods. ``ReportsApiSession`` accepts a single ``Auth`` object. You can choose from `ApiTokenAuth`, `DynamicApiTokenAuth` or `CookieAuth`.
+``ReportsApiSession`` accepts a single ``Auth`` object. The SDK ships with three implementations you can choose from:
+
+- ``ApiTokenManager`` — API token with automatic rotation and storage management (recommended, see `API Token Authentication`_ below)
+- ``ApiTokenAuth`` — a fixed API token, without rotation or storage (see `API Token Auth (without automatic rotation and storage management)`_)
+- ``BasicAuth`` — username and password over HTTP Basic (see `Basic Authentication`_)
 
 API Token Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -79,7 +84,7 @@ When used with a storage backend, the SDK can:
 
 Rotation eligibility is checked on every request, which means that for typical integrations with regular traffic, you can configure the token once and let the SDK manage it automatically.
 
-For integrations that do not make requests frequently enough to trigger automatic rotation during the rotation window (e.g. at least once a day), use the ``keep-alive-json`` CLI command (see `CLI for API Tokens` below) scheduled with ``cron`` or a similar tool.
+For integrations that do not make requests frequently enough to trigger automatic rotation during the rotation window (e.g. at least once a day), use the ``keep-alive-json`` CLI command (see `CLI for API Tokens`_ below) scheduled with ``cron`` or a similar tool.
 
 CLI for API Tokens
 ^^^^^^^^^^^^^^^^^^^
@@ -163,11 +168,7 @@ For simple scenarios where true persistence is not required. Use the ``InMemoryA
 Custom Storage Backend
 """"""""""""""""""""""
 
-You can implement your own storage backend by subclassing ``ApiTokenStorage``. Each backend must implement three methods:
-
-- ``acquireForSave($callback)`` — prepares storage for a write and then runs ``$callback``. For example, in the JSON file storage implementation this acquires a file lock to protect against concurrent rotation requests.
-- ``load()`` — load and return the current ``ApiToken``
-- ``save($apiToken)`` — persist the given ``ApiToken``
+You can implement your own storage backend by subclassing ``ApiTokenStorage``, which requires implementing ``acquireForSave()``, ``load()`` and ``save()``. See the docblocks on ``ApiTokenStorage`` for the exact contract each method has to satisfy.
 
 
 API Token Auth (without automatic rotation and storage management)
@@ -186,17 +187,17 @@ Use ``ApiTokenAuth`` if you want to authenticate with a fixed API token without 
     $info = $api->getUserInfo();
 
 
-Cookie (username / password) Authentication
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Basic Authentication
+^^^^^^^^^^^^^^^^^^^^
 
-Use ``CookieAuth`` to authenticate with a username and password.
+Use ``BasicAuth`` to authenticate with a username and password over HTTP Basic.
 
 .. code-block:: php
 
-    use RTBHouse\ReportsApi\CookieAuth;
+    use RTBHouse\ReportsApi\BasicAuth;
     use RTBHouse\ReportsApi\ReportsApiSession;
 
-    $auth = new CookieAuth('jdoe', 'abcd1234');
+    $auth = new BasicAuth('jdoe', 'abcd1234');
 
     $api = new ReportsApiSession($auth);
     $info = $api->getUserInfo();

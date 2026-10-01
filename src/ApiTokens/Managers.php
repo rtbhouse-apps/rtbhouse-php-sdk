@@ -7,10 +7,6 @@ use RTBHouse\ReportsApi\ApiTokenAuth;
 use RTBHouse\ReportsApi\DynamicApiTokenAuth;
 use RTBHouse\ReportsApi\ReportsApiSession;
 
-const TOKEN_LENGTH = 43;
-const ROTATION_WINDOW_SPEC = 'P4D';    // 4 days
-const EXPIRATION_MARGIN_SPEC = 'PT1M'; // 1 minute
-
 
 class ApiTokenExpiredException extends \Exception
 {
@@ -19,29 +15,38 @@ class ApiTokenExpiredException extends \Exception
 
 class ApiTokenManager extends DynamicApiTokenAuth
 {
-    private ApiTokenStorage $storage;
-    private \DateInterval $rotationWindow;
-    private \DateInterval $expirationMargin;
+    /** How long before expiry the token becomes eligible for rotation. */
+    private const ROTATION_WINDOW_SPEC = 'P4D';    // 4 days
 
-    public function __construct(ApiTokenStorage $storage)
-    {
-        $this->storage = $storage;
-        $this->rotationWindow = new \DateInterval(ROTATION_WINDOW_SPEC);
-        $this->expirationMargin = new \DateInterval(EXPIRATION_MARGIN_SPEC);
+    /** How long before expiry the token is already considered unusable. */
+    private const EXPIRATION_MARGIN_SPEC = 'PT1M'; // 1 minute
+
+    private readonly \DateInterval $rotationWindow;
+    private readonly \DateInterval $expirationMargin;
+
+    public function __construct(
+        private readonly ApiTokenStorage $storage
+    ) {
+        $this->rotationWindow = new \DateInterval(self::ROTATION_WINDOW_SPEC);
+        $this->expirationMargin = new \DateInterval(self::EXPIRATION_MARGIN_SPEC);
     }
 
     /**
+     * Fetches the token details and saves the token to storage.
+     *
      * @throws \InvalidArgumentException
+     * @throws ApiTokenStorageException
      */
     public function configure(string $token): void
     {
-        if (strlen($token) !== TOKEN_LENGTH) {
+        if (strlen($token) !== ApiToken::TOKEN_LENGTH) {
             throw new \InvalidArgumentException('Invalid token format.');
         }
 
-        $this->storage->acquireForSave(function () use ($token) {
+        $this->storage->acquireForSave(function () use ($token): void {
             $session = $this->createSession($token);
             $details = $session->getCurrentApiToken();
+
             $apiToken = new ApiToken($token, new \DateTimeImmutable($details['expiresAt']));
             $this->storage->save($apiToken);
         });
@@ -49,6 +54,7 @@ class ApiTokenManager extends DynamicApiTokenAuth
 
     /**
      * @throws ApiTokenExpiredException
+     * @throws ApiTokenStorageException
      */
     public function getToken(): string
     {
@@ -57,7 +63,7 @@ class ApiTokenManager extends DynamicApiTokenAuth
             return $token;
         }
 
-        return $this->storage->acquireForSave(function () {
+        return $this->storage->acquireForSave(function (): string {
             // Double-check inside the protected segment to avoid concurrent rotations.
             [$token, $inRotationWindow] = $this->loadAndValidate();
             if (!$inRotationWindow) {
@@ -65,13 +71,7 @@ class ApiTokenManager extends DynamicApiTokenAuth
             }
 
             try {
-                $session = $this->createSession($token);
-                $rotated = $session->rotateCurrentApiToken();
-                $newToken = new ApiToken($rotated['token'], new \DateTimeImmutable($rotated['expiresAt']));
-
-                $this->storage->save($newToken);
-
-                return $newToken->token;
+                $apiToken = $this->rotate($this->createSession($token));
             } catch (\Throwable $exception) {
                 trigger_error(
                     'Attempted to rotate API token but failed. '
@@ -79,31 +79,54 @@ class ApiTokenManager extends DynamicApiTokenAuth
                     . 'Original error: ' . $exception->getMessage(),
                     E_USER_WARNING
                 );
+
                 return $token;
             }
+
+            $this->storage->save($apiToken);
+
+            return $apiToken->token;
         });
     }
 
+    /**
+     * @throws ApiTokenExpiredException
+     * @throws ApiTokenStorageException
+     */
     public function keepAlive(bool $autoRotate = true): void
     {
-        $this->storage->acquireForSave(function () use ($autoRotate) {
+        $this->storage->acquireForSave(function () use ($autoRotate): void {
             [$token, $inRotationWindow] = $this->loadAndValidate();
+
             $session = $this->createSession($token);
+            // Bump the token's last activity timestamp to keep it alive.
             $session->getCurrentApiToken();
+
             if (!$autoRotate || !$inRotationWindow) {
                 return;
             }
 
-            $rotated = $session->rotateCurrentApiToken();
-            $newToken = new ApiToken($rotated['token'], new \DateTimeImmutable($rotated['expiresAt']));
-
-            $this->storage->save($newToken);
+            $this->storage->save($this->rotate($session));
         });
     }
 
+    /**
+     * Creates a session authenticated with a fixed token.
+     *
+     * The token is passed explicitly as ApiTokenAuth rather than reusing $this as the
+     * auth backend: $this->getToken() may itself rotate the token, so using it here
+     * would recurse.
+     */
     protected function createSession(string $token): ReportsApiSession
     {
         return new ReportsApiSession(new ApiTokenAuth($token));
+    }
+
+    private function rotate(ReportsApiSession $session): ApiToken
+    {
+        $rotated = $session->rotateCurrentApiToken();
+
+        return new ApiToken($rotated['token'], new \DateTimeImmutable($rotated['expiresAt']));
     }
 
     /**
@@ -114,7 +137,6 @@ class ApiTokenManager extends DynamicApiTokenAuth
     private function loadAndValidate(): array
     {
         $now = new \DateTimeImmutable('now');
-        
         $apiToken = $this->storage->load();
         $expiresAt = $apiToken->expiresAt;
 
