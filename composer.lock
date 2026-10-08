@@ -610,16 +610,16 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.37.0",
+            "version": "v1.43.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "dfb55726c3a76ea3b6459fcfda1ec2d80a682411"
+                "reference": "9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/dfb55726c3a76ea3b6459fcfda1ec2d80a682411",
-                "reference": "dfb55726c3a76ea3b6459fcfda1ec2d80a682411",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74",
+                "reference": "9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74",
                 "shasum": ""
             },
             "require": {
@@ -670,7 +670,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.37.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.43.0"
             },
             "funding": [
                 {
@@ -690,7 +690,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-10T16:19:22+00:00"
+            "time": "2026-09-25T15:50:05+00:00"
         }
     ],
     "packages-dev": [
@@ -1320,16 +1320,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.37",
+            "version": "9.6.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f"
+                "reference": "8b5f757e8e92071bfdbfa93943f94f84c4e31007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aceaa623912caf8e80bffea22fc4103a0a01565f",
-                "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8b5f757e8e92071bfdbfa93943f94f84c4e31007",
+                "reference": "8b5f757e8e92071bfdbfa93943f94f84c4e31007",
                 "shasum": ""
             },
             "require": {
@@ -1403,7 +1403,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.37"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.38"
             },
             "funding": [
                 {
@@ -1411,7 +1411,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-09-23T09:59:59+00:00"
+            "time": "2026-10-05T05:44:26+00:00"
         },
         {
             "name": "sebastian/cli-parser",
