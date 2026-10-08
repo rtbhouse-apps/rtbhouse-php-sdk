@@ -9,7 +9,7 @@ services:
       args:
         PHP_VERSION: "8.5"
         UID: "${UID}"
-        GID: "${UID}"
+        GID: "${GID}"
     container_name: rtbhouse-php-sdk
     volumes:
       - ./src/:/home/apps/code/src

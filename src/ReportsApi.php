@@ -81,7 +81,7 @@ class ReportsApiSession
         // The header is resolved per request, because DynamicApiTokenAuth
         // implementations can rotate the token between calls.
         $stack = HandlerStack::create();
-        $stack->push(Middleware::mapRequest(
+        $stack->unshift(Middleware::mapRequest(
             static fn (RequestInterface $request): RequestInterface => $request
                 ->withHeader('Authorization', $auth->getAuthorizationHeader())
         ));

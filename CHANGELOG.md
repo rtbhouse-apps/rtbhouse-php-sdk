@@ -8,8 +8,8 @@
   Available `Auth` implementations: `ApiTokenManager` (recommended, with automatic token rotation),
   `ApiTokenAuth` and `BasicAuth`. To plug in your own token source, extend `DynamicApiTokenAuth`
   and implement `getToken()`; to control the whole `Authorization` header, implement `Auth` directly.
-- `CookieAuth` renamed to `BasicAuth`. It now sends an HTTP Basic `Authorization` header instead of
-  calling `POST auth/login` and keeping a session cookie.
+- Cookie-based default authentication was removed. For (username, login) cases you can now use `BasicAuth`,
+  which sends an HTTP Basic `Authorization` header.
 
 ## Other changes
 
