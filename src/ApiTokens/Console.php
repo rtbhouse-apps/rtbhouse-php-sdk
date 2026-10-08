@@ -23,7 +23,7 @@ Examples:
     # Initialize token via environment variable:
     $ php vendor/bin/api-tokens init-json <<< "$API_TOKEN"
 
-    # Initialize token with custom path:
+    # Initialize token from a file:
     $ php vendor/bin/api-tokens init-json < token.txt
 
     # Initialize token in custom path:
@@ -45,8 +45,10 @@ namespace RTBHouse\ReportsApi\ApiTokens;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -88,13 +90,13 @@ HELP
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $token = $this->readToken($input, $output);
-
-        $path = $input->getOption('path');
-        $storage = new JsonFileApiTokenStorage($path);
-        $manager = new ApiTokenManager($storage);
-
         try {
+            $path = readPath($input);
+            $token = $this->readToken($input, $output);
+
+            $storage = new JsonFileApiTokenStorage($path);
+            $manager = new ApiTokenManager($storage);
+
             $manager->configure($token);
         } catch (\Throwable $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
@@ -109,19 +111,47 @@ HELP
 
     private function readToken(InputInterface $input, OutputInterface $output): string
     {
-        if (stream_isatty(STDIN)) {
+        $stream = ($input instanceof StreamableInputInterface ? $input->getStream() : null) ?? STDIN;
+
+        if (!stream_isatty($stream)) {
+            $token = stream_get_contents($stream);
+            if ($token === false) {
+                throw new \RuntimeException('Failed to read token from stdin.');
+            }
+        } else {
+            /** @var QuestionHelper $helper */
             $helper = $this->getHelper('question');
             $question = new Question('Paste your token: ');
             $question->setHidden(true);
 
-            $token = $helper->ask($input, $output, $question);
-        } else {
-            $token = stream_get_contents(STDIN);
+            $token = (string) $helper->ask($input, $output, $question);
         }
 
-        return trim((string) $token);
+        $token = trim($token);
+
+        if ($token === '') {
+            throw new \RuntimeException('Token cannot be empty.');
+        }
+
+        return $token;
     }
 }
+
+function readPath(InputInterface $input): ?string
+{
+    $path = $input->getOption('path');
+
+    if ($path === null) {
+        return null;
+    }
+
+    if (!is_string($path) || trim($path) === '') {
+        throw new \InvalidArgumentException('The --path option requires a non-empty path.');
+    }
+
+    return $path;
+}
+
 
 
 #[AsCommand(
@@ -155,13 +185,13 @@ HELP
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $path = $input->getOption('path');
-        $skipAutoRotate = (bool) $input->getOption('skip-auto-rotate');
-
-        $storage = new JsonFileApiTokenStorage($path);
-        $manager = new ApiTokenManager($storage);
-
         try {
+            $path = readPath($input);
+            $skipAutoRotate = (bool) $input->getOption('skip-auto-rotate');
+
+            $storage = new JsonFileApiTokenStorage($path);
+            $manager = new ApiTokenManager($storage);
+
             $manager->keepAlive(autoRotate: !$skipAutoRotate);
         } catch (\Throwable $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');

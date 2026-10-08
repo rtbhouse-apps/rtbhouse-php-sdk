@@ -14,12 +14,7 @@ define('API_HOST', 'https://api.panel.rtbhouse.com');
 define('API_VERSION', 'v5');
 
 const DEFAULT_TIMEOUT_SECONDS = 60.0;
-
-
-function build_base_url(): string
-{
-    return API_HOST.'/'.API_VERSION.'/';
-}
+const BASE_URL = API_HOST.'/'.API_VERSION.'/';
 
 
 class ReportsApiException extends \Exception
@@ -71,15 +66,15 @@ class UserSegment
 class ReportsApiSession
 {
     private Auth $_auth;
-    private \GuzzleHttp\Client $_session;
+    private \GuzzleHttp\Client $_client;
 
     function __construct(Auth $auth, ?string $baseUrl = null, float $timeout = DEFAULT_TIMEOUT_SECONDS)
     {
         $this->_auth = $auth;
-        $this->_session = $this->_create_session($baseUrl ?? build_base_url(), $timeout);
+        $this->_client = $this->_create_client($baseUrl ?? BASE_URL, $timeout);
     }
 
-    protected function _create_session(string $baseUrl, float $timeout): \GuzzleHttp\Client
+    protected function _create_client(string $baseUrl, float $timeout): \GuzzleHttp\Client
     {
         $auth = $this->_auth;
 
@@ -177,7 +172,7 @@ class ReportsApiSession
     private function _request(string $method, string $path, array $options): mixed
     {
         try {
-            $res = $this->_session->request($method, $path, $options);
+            $res = $this->_client->request($method, $path, $options);
         } catch (GuzzleRequestException $e) {
             $this->_handleError($e);
         } catch (GuzzleException $e) {

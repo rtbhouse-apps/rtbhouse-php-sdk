@@ -50,6 +50,18 @@ final class ApiTokenTest extends TestCase
         ApiToken::fromJson('{"token": "abc"}');
     }
 
+    public function testFromJsonRejectsTokenOfWrongLength(): void
+    {
+        $this->expectException(\UnexpectedValueException::class);
+        ApiToken::fromJson(json_encode(['token' => 'too-short', 'expires_at' => self::EXPIRES_AT_STR]));
+    }
+
+    public function testFromJsonRejectsNonStringToken(): void
+    {
+        $this->expectException(\UnexpectedValueException::class);
+        ApiToken::fromJson(json_encode(['token' => 12345, 'expires_at' => self::EXPIRES_AT_STR]));
+    }
+
     public function testFromJsonRejectsUnparsableExpiresAt(): void
     {
         $this->expectException(\UnexpectedValueException::class);

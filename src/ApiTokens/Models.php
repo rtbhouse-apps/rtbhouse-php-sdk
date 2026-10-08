@@ -24,8 +24,18 @@ final class ApiToken
             throw new \UnexpectedValueException('Malformed API token data.');
         }
 
+        if (!is_string($data['token']) || strlen($data['token']) !== self::TOKEN_LENGTH) {
+            throw new \UnexpectedValueException(
+                sprintf('Invalid token: expected a string of %d characters.', self::TOKEN_LENGTH)
+            );
+        }
+
+        if (!is_string($data['expires_at'])) {
+            throw new \UnexpectedValueException('Invalid API token expires_at: expected a string.');
+        }
+
         try {
-            $expiresAt = new \DateTimeImmutable((string) $data['expires_at']);
+            $expiresAt = new \DateTimeImmutable($data['expires_at']);
         } catch (\Exception $exception) {
             throw new \UnexpectedValueException(
                 'Invalid API token expires_at data format: ' . $exception->getMessage(),
@@ -33,7 +43,7 @@ final class ApiToken
             );
         }
 
-        return new self((string) $data['token'], $expiresAt);
+        return new self($data['token'], $expiresAt);
     }
 
     /**

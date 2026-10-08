@@ -6,7 +6,8 @@
 - `ReportsApiSession::__construct()` signature changed from `($username, $password)` to
   `(Auth $auth, ?string $baseUrl = null, float $timeout = DEFAULT_TIMEOUT_SECONDS)`.
   Available `Auth` implementations: `ApiTokenManager` (recommended, with automatic token rotation),
-  `ApiTokenAuth` and `BasicAuth`; or extend `DynamicApiTokenAuth` with your own token source.
+  `ApiTokenAuth` and `BasicAuth`. To plug in your own token source, extend `DynamicApiTokenAuth`
+  and implement `getToken()`; to control the whole `Authorization` header, implement `Auth` directly.
 - `CookieAuth` renamed to `BasicAuth`. It now sends an HTTP Basic `Authorization` header instead of
   calling `POST auth/login` and keeping a session cookie.
 

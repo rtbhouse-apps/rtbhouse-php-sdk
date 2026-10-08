@@ -37,6 +37,12 @@ final class JsonFileApiTokenStorageTest extends TestCase
         file_put_contents($this->path, $contents);
     }
 
+    public function testRejectsEmptyPath(): void
+    {
+        $this->expectException(ApiTokenStorageException::class);
+        new JsonFileApiTokenStorage(' ');
+    }
+
     public function testSavePersistsToken(): void
     {
         $this->assertDirectoryDoesNotExist($this->dir);

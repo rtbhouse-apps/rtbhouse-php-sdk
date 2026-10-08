@@ -42,6 +42,11 @@ final class ApiTokenManagerTest extends TestCase
         return new InMemoryApiTokenStorage(new ApiToken(self::TOKEN, new \DateTimeImmutable($expiresAt)));
     }
 
+    private function buildCurrentApiTokenResponse(string $expiresAt): array
+    {
+        return ['expiresAt' => (new \DateTimeImmutable($expiresAt))->format(\DateTimeInterface::ATOM)];
+    }
+
     public function testConfigureRejectsTokenWithWrongLength(): void
     {
         $manager = $this->buildManagerWithMockedSession(new InMemoryApiTokenStorage(null));
@@ -141,7 +146,8 @@ final class ApiTokenManagerTest extends TestCase
     public function testKeepAlivePingsEndpointAndRotatesInsideWindow(): void
     {
         $storage = $this->buildStorageWithApiTokenExpiresAt('+2 days');
-        $this->session->expects($this->once())->method('getCurrentApiToken');
+        $this->session->expects($this->once())->method('getCurrentApiToken')
+            ->willReturn($this->buildCurrentApiTokenResponse('+2 days'));
         $this->session->expects($this->once())->method('rotateCurrentApiToken')
             ->willReturn(['token' => self::ROTATED_TOKEN, 'expiresAt' => self::FAR_FUTURE]);
 
@@ -153,7 +159,8 @@ final class ApiTokenManagerTest extends TestCase
     public function testKeepAliveDoesNotRotateWhenAutoRotateDisabled(): void
     {
         $storage = $this->buildStorageWithApiTokenExpiresAt('+2 days');
-        $this->session->expects($this->once())->method('getCurrentApiToken');
+        $this->session->expects($this->once())->method('getCurrentApiToken')
+            ->willReturn($this->buildCurrentApiTokenResponse('+2 days'));
         $this->session->expects($this->never())->method('rotateCurrentApiToken');
 
         $this->buildManagerWithMockedSession($storage)->keepAlive(false);
@@ -164,7 +171,8 @@ final class ApiTokenManagerTest extends TestCase
     public function testKeepAliveDoesNotRotateOutsideWindow(): void
     {
         $storage = $this->buildStorageWithApiTokenExpiresAt('+30 days');
-        $this->session->expects($this->once())->method('getCurrentApiToken');
+        $this->session->expects($this->once())->method('getCurrentApiToken')
+            ->willReturn($this->buildCurrentApiTokenResponse('+30 days'));
         $this->session->expects($this->never())->method('rotateCurrentApiToken');
 
         $this->buildManagerWithMockedSession($storage)->keepAlive();

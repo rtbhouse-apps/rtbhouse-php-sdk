@@ -45,9 +45,8 @@ class ApiTokenManager extends DynamicApiTokenAuth
 
         $this->storage->acquireForSave(function () use ($token): void {
             $session = $this->createSession($token);
-            $details = $session->getCurrentApiToken();
+            $apiToken = $this->getCurrent($session, $token);
 
-            $apiToken = new ApiToken($token, new \DateTimeImmutable($details['expiresAt']));
             $this->storage->save($apiToken);
         });
     }
@@ -100,7 +99,7 @@ class ApiTokenManager extends DynamicApiTokenAuth
 
             $session = $this->createSession($token);
             // Bump the token's last activity timestamp to keep it alive.
-            $session->getCurrentApiToken();
+            $this->getCurrent($session, $token);
 
             if (!$autoRotate || !$inRotationWindow) {
                 return;
@@ -120,6 +119,13 @@ class ApiTokenManager extends DynamicApiTokenAuth
     protected function createSession(string $token): ReportsApiSession
     {
         return new ReportsApiSession(new ApiTokenAuth($token));
+    }
+
+    private function getCurrent(ReportsApiSession $session, string $token): ApiToken
+    {
+        $current = $session->getCurrentApiToken();
+
+        return new ApiToken($token, new \DateTimeImmutable($current['expiresAt']));
     }
 
     private function rotate(ReportsApiSession $session): ApiToken
