@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use RTBHouse\ReportsApi\ApiTokens\ConsoleApplication;
+
+// Locations of vendor/autoload.php:
+//  - Composer's bin proxy exposes it as $_composer_autoload_path (Composer 2.2+),
+//  - installed as a dependency: vendor/rtbhouse/sdk/bin/ -> vendor/autoload.php,
+//  - working copy of this repository: vendor/ sits next to bin/.
+$candidates = array_filter([
+    $GLOBALS['_composer_autoload_path'] ?? null,
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+]);
+
+foreach ($candidates as $candidate) {
+    if (is_file($candidate)) {
+        require $candidate;
+        break;
+    }
+}
+
+if (!class_exists(ConsoleApplication::class)) {
+    fwrite(STDERR, "Cannot locate vendor/autoload.php. Run `composer install`.\n");
+    exit(1);
+}
+
+exit((new ConsoleApplication())->run());

@@ -1,3 +1,61 @@
+# v9.0.0
+
+## Breaking changes
+
+- Minimum PHP version raised to 8.1. Drop support for PHP 7.4 and 8.0.
+- `ReportsApiSession::__construct()` signature changed from `($username, $password)` to
+  `(Auth $auth, ?string $baseUrl = null, float $timeout = DEFAULT_TIMEOUT_SECONDS)`.
+  Available `Auth` implementations: `ApiTokenManager` (recommended, with automatic token rotation),
+  `ApiTokenAuth` and `BasicAuth`. To plug in your own token source, extend `DynamicApiTokenAuth`
+  and implement `getToken()`; to control the whole `Authorization` header, implement `Auth` directly.
+- Cookie-based default authentication was removed. For (username, login) cases you can now use `BasicAuth`,
+  which sends an HTTP Basic `Authorization` header.
+
+## Other changes
+
+- Return types were added across `ReportsApiSession`.
+- Every request now has a timeout, defaulting to 60s (previously only a 2s connect timeout was set), so a hung response can no longer block a caller indefinitely. It can be overridden per
+  session: `new ReportsApiSession($auth, timeout: 10.0)`.
+- A malformed JSON response now raises `ReportsApiException` as intended, instead of emitting a
+  PHP warning and returning `null`.
+- Added `symfony/console` (the API tokens CLI), `symfony/filesystem` and `symfony/lock` (token
+  storage), all `^6.4`.
+
+## API Token Support
+
+Added support for API token authentication with automatic lifecycle management.
+
+### Initialize the API token in JSON file storage:
+
+First, create an API token in the Clients Panel (https://panel.rtbhouse.com/user/api-tokens), then initialize it in storage:
+
+```sh
+$ php vendor/bin/api-tokens init-json
+Paste your token: PASTE_YOUR_TOKEN_HERE
+```
+
+### Use the token manager as the auth backend in your ReportsApiSession:
+
+```php
+use RTBHouse\ReportsApi\ApiTokens\ApiTokenManager;
+use RTBHouse\ReportsApi\ApiTokens\JsonFileApiTokenStorage;
+use RTBHouse\ReportsApi\ReportsApiSession;
+
+$storage = new JsonFileApiTokenStorage();
+$auth = new ApiTokenManager($storage);
+
+$api = new ReportsApiSession($auth);
+$info = $api->getUserInfo();
+```
+
+### Schedule `keep-alive-json` command to run at least once a day to keep the token alive and rotate it automatically:
+
+```sh
+$ php vendor/bin/api-tokens keep-alive-json
+```
+
+See `README.rst` for more details and examples.
+
 # v8.1.0
 Added `utcOffsetHours` parameter for `getRtbStats` and `getSummaryStats`
 

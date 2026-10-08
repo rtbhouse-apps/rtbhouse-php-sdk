@@ -7,8 +7,8 @@ use \PHPUnit\Framework\TestCase;
 use \RTBHouse\ReportsApi\ReportsApiSession;
 use \RTBHouse\ReportsApi\ReportsApiException;
 use \RTBHouse\ReportsApi\ReportsApiRequestException;
+use \RTBHouse\ReportsApi\BasicAuth;
 use \RTBHouse\ReportsApi\Conversions;
-use \RTBHouse\ReportsApi\UserSegment;
 
 require_once(__DIR__ . '/config.php');
 
@@ -26,7 +26,7 @@ final class ReportsApiTest extends TestCase
 
     static function setUpBeforeClass(): void
     {
-        self::$api = new ReportsApiSession(USERNAME, PASSWORD);
+        self::$api = new ReportsApiSession(new BasicAuth(USERNAME, PASSWORD));
     }
 
     static function tearDownAfterClass(): void
@@ -52,7 +52,7 @@ final class ReportsApiTest extends TestCase
 
     function testGetInvalidUserInfo()
     {
-        $session = new ReportsApiSession('invalid', 'invalid');
+        $session = new ReportsApiSession(new BasicAuth('invalid', 'invalid'));
         try {
             $data = $session->getUserInfo();
             $this->fail('Should raise an exception');
@@ -63,8 +63,7 @@ final class ReportsApiTest extends TestCase
 
     function testUnsupportedVersion()
     {
-        $session = new ReportsApiSession(USERNAME, PASSWORD);
-        $session->_baseUrl = API_HOST.'/v1/';
+        $session = new ReportsApiSession(new BasicAuth(USERNAME, PASSWORD), baseUrl: API_HOST.'/v1/');
         try {
             $data = $session->getUserInfo();
             $this->fail('Should raise an exception');

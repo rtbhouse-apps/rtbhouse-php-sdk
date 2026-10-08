@@ -7,21 +7,10 @@ services:
     build:
       context: .
       args:
-        PHP_VERSION: 8
+        PHP_VERSION: "8.5"
         UID: "${UID}"
-        GID: "${UID}"
+        GID: "${GID}"
     container_name: rtbhouse-php-sdk
-    volumes:
-      - ./src/:/home/apps/code/src
-      - ./tests/:/home/apps/code/tests
-  tests_php7:
-    build:
-      context: .
-      args:
-        PHP_VERSION: 7
-        UID: "${UID}"
-        GID: "${UID}"
-    container_name: rtbhouse-php-sdk-php7
     volumes:
       - ./src/:/home/apps/code/src
       - ./tests/:/home/apps/code/tests

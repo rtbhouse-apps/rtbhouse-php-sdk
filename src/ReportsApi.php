@@ -5,10 +5,16 @@ namespace RTBHouse\ReportsApi;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 define('API_HOST', 'https://api.panel.rtbhouse.com');
 define('API_VERSION', 'v5');
+
+const DEFAULT_TIMEOUT_SECONDS = 60.0;
+const BASE_URL = API_HOST.'/'.API_VERSION.'/';
 
 
 class ReportsApiException extends \Exception
@@ -59,62 +65,42 @@ class UserSegment
 
 class ReportsApiSession
 {
-    private $_username;
-    private $_password;
-    private $_session;
-    public $_baseUrl;
+    private Auth $_auth;
+    private \GuzzleHttp\Client $_client;
 
-    function __construct(string $username, string $password)
+    function __construct(Auth $auth, ?string $baseUrl = null, float $timeout = DEFAULT_TIMEOUT_SECONDS)
     {
-        $this->_username = $username;
-        $this->_password = $password;
-        $this->_baseUrl = API_HOST.'/'.API_VERSION.'/';
+        $this->_auth = $auth;
+        $this->_client = $this->_create_client($baseUrl ?? BASE_URL, $timeout);
     }
 
-    /**
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    protected function _session(): \GuzzleHttp\Client
+    protected function _create_client(string $baseUrl, float $timeout): \GuzzleHttp\Client
     {
-        if (empty($this->_session)) {
-            $this->_session = $this->_create_session();
-        }
+        $auth = $this->_auth;
 
-        return $this->_session;
-    }
+        // The header is resolved per request, because DynamicApiTokenAuth
+        // implementations can rotate the token between calls.
+        $stack = HandlerStack::create();
+        $stack->unshift(Middleware::mapRequest(
+            static fn (RequestInterface $request): RequestInterface => $request
+                ->withHeader('Authorization', $auth->getAuthorizationHeader())
+        ));
 
-    /**
-     * @throws ReportsApiRequestException
-     * @throws ReportsApiException
-     */
-    protected function _create_session(): \GuzzleHttp\Client
-    {
-        $client = new \GuzzleHttp\Client([
-            'base_uri' => $this->_baseUrl,
+        return new \GuzzleHttp\Client([
+            'base_uri' => $baseUrl,
             'connect_timeout' => 2.0,
-            'cookies' => true
+            'timeout' => $timeout,
+            'handler' => $stack,
         ]);
-
-        try {
-            $res = $client->request('POST', 'auth/login', ['json' => ['login' => $this->_username, 'password' => $this->_password]]);
-        } catch (GuzzleRequestException $e) {
-            $this->_handleError($e);
-        } catch (GuzzleException $e) {
-            throw new ReportsApiException($e->getMessage());
-        }
-
-        $this->_validateResponse($res);
-        return $client;
     }
 
     /**
      * @throws ReportsApiException
      */
-    protected function _getData(ResponseInterface $res)
+    protected function _getData(ResponseInterface $res): mixed
     {
         try {
-            $res_json = json_decode($res->getBody()->getContents(), true);
+            $res_json = json_decode($res->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
             return $res_json['data'];
         } catch (\Exception $e) {
             throw new ReportsApiException('Invalid response format');
@@ -125,7 +111,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    protected function _handleError(GuzzleRequestException $e)
+    protected function _handleError(GuzzleRequestException $e): never
     {
         if ($e->hasResponse()) {
             $resp = $e->getResponse();
@@ -144,7 +130,7 @@ class ReportsApiSession
         }
     }
 
-    protected function _validateResponse(ResponseInterface $res)
+    protected function _validateResponse(ResponseInterface $res): void
     {
         $newestVersion = $this->_getNewestApiVersion($res);
         if ($newestVersion && $newestVersion !== API_VERSION) {
@@ -154,7 +140,7 @@ class ReportsApiSession
         }
     }
 
-    private function _getNewestApiVersion(ResponseInterface $res) 
+    private function _getNewestApiVersion(ResponseInterface $res): ?string
     {
         $newestVersions = $res->getHeader('X-Current-Api-Version');
         $newestVersion = !empty($newestVersions) ? $newestVersions[0] : null;
@@ -165,10 +151,28 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    protected function _get(string $path, array $params = [])
+    protected function _get(string $path, array $params = []): mixed
+    {
+        return $this->_request('GET', $path, ['query' => $params]);
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    protected function _post(string $path, array $data = []): mixed
+    {
+        return $this->_request('POST', $path, ['json' => $data]);
+    }
+
+    /**
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    private function _request(string $method, string $path, array $options): mixed
     {
         try {
-            $res = $this->_session()->request('GET', $path, ['query' => $params]);
+            $res = $this->_client->request($method, $path, $options);
         } catch (GuzzleRequestException $e) {
             $this->_handleError($e);
         } catch (GuzzleException $e) {
@@ -183,7 +187,7 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    protected function _getFromCursor(string $path, array $params = [])
+    protected function _getFromCursor(string $path, array $params = []): array
     {
         $limit = 10000;
         $res = $this->_get($path, array_merge($params, ['limit' => $limit]));
@@ -212,6 +216,28 @@ class ReportsApiSession
             'username' => $data['login'],
             'email' => $data['email']
         ];
+    }
+
+    /**
+     * @return array
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    function getCurrentApiToken(): array
+    {
+        $data = $this->_get('tokens/current');
+        return ['expiresAt' => $data['expiresAt']];
+    }
+
+    /**
+     * @return array
+     * @throws ReportsApiException
+     * @throws ReportsApiRequestException
+     */
+    function rotateCurrentApiToken(): array
+    {
+        $data = $this->_post('tokens/current/rotate');
+        return ['token' => $data['token'], 'expiresAt' => $data['expiresAt']];
     }
 
     /**
@@ -307,7 +333,7 @@ class ReportsApiSession
         ?string $subcampaigns = null,
         ?array $userSegments = null,
         ?array $deviceTypes = null
-    ) {
+    ): array {
         $params = [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
@@ -337,7 +363,8 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    function getRtbConversions(string $advHash, string $dayFrom, string $dayTo, string $conventionType = Conversions::ATTRIBUTED_POST_CLICK) {
+    function getRtbConversions(string $advHash, string $dayFrom, string $dayTo, string $conventionType = Conversions::ATTRIBUTED_POST_CLICK): array
+    {
         return $this->_getFromCursor("advertisers/{$advHash}/conversions", [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
@@ -357,7 +384,7 @@ class ReportsApiSession
         ?string $countConvention = null,
         ?int $utcOffsetHours = 0,
         ?string $subcampaigns = null
-    ) {
+    ): array {
         $params = [
             'dayFrom' => $dayFrom,
             'dayTo' => $dayTo,
