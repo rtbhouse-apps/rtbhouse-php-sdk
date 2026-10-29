@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RTBHouse\ReportsApi;
 
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use GuzzleHttp\HandlerStack;
@@ -113,7 +114,7 @@ class ReportsApiSession
      */
     protected function _handleError(GuzzleRequestException $e): never
     {
-        if ($e->hasResponse()) {
+        if ($e instanceof BadResponseException) {
             $resp = $e->getResponse();
             if ($resp->getStatusCode() === 410) {
                 $msg = 'Unsupported api version ('.API_VERSION.')';
