@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace RTBHouse\ReportsApi;
 
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
@@ -111,22 +111,18 @@ class ReportsApiSession
      * @throws ReportsApiException
      * @throws ReportsApiRequestException
      */
-    protected function _handleError(GuzzleRequestException $e): never
+    protected function _handleError(BadResponseException $e): never
     {
-        if ($e->hasResponse()) {
-            $resp = $e->getResponse();
-            if ($resp->getStatusCode() === 410) {
-                $msg = 'Unsupported api version ('.API_VERSION.')';
-                $newestVersion = $this->_getNewestApiVersion($resp);
-                if ($newestVersion) {
-                    $msg .= ', use newest version ('.$newestVersion.') by updating rtbhouse_sdk package.';
-                }
-                throw new ReportsApiException($msg);
-            } else {
-                throw new ReportsApiRequestException($resp);
+        $resp = $e->getResponse();
+        if ($resp->getStatusCode() === 410) {
+            $msg = 'Unsupported api version ('.API_VERSION.')';
+            $newestVersion = $this->_getNewestApiVersion($resp);
+            if ($newestVersion) {
+                $msg .= ', use newest version ('.$newestVersion.') by updating rtbhouse_sdk package.';
             }
+            throw new ReportsApiException($msg);
         } else {
-            throw new ReportsApiException($e->getMessage());
+            throw new ReportsApiRequestException($resp);
         }
     }
 
@@ -173,7 +169,7 @@ class ReportsApiSession
     {
         try {
             $res = $this->_client->request($method, $path, $options);
-        } catch (GuzzleRequestException $e) {
+        } catch (BadResponseException $e) {
             $this->_handleError($e);
         } catch (GuzzleException $e) {
             throw new ReportsApiException($e->getMessage());
