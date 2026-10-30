@@ -1,3 +1,7 @@
+# v9.1.0
+
+- Added support for `guzzlehttp/guzzle` 8.x.
+
 # v9.0.0
 
 ## Breaking changes
