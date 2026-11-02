@@ -1,3 +1,13 @@
+# v10.0.0
+
+## Breaking changes
+
+- Added support for `guzzlehttp/guzzle` 8.x. The constraint is now `^7.5 || ^8.0`.
+- Transport errors that occur after the response headers arrive (truncated body, body read
+  timeout, too many redirects, HTTP protocol error) now throw `ReportsApiException` instead of
+  `ReportsApiRequestException`. 4xx and 5xx responses are unchanged. Catch `ReportsApiException`
+  to cover both.
+
 # v9.0.0
 
 ## Breaking changes
