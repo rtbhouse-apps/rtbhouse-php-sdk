@@ -1,3 +1,10 @@
+# Unreleased
+
+## Other changes
+
+- Added support for Symfony 7 and 8. The constraints of `symfony/console`, `symfony/filesystem`
+  and `symfony/lock` are now `^6.4 || ^7.0 || ^8.0`.
+
 # v10.0.0
 
 ## Breaking changes
