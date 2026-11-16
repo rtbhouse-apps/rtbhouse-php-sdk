@@ -58,8 +58,10 @@ final class ConsoleApplication extends Application
     {
         parent::__construct('rtbhouse-php-sdk');
 
-        $this->add(new InitJsonCommand());
-        $this->add(new KeepAliveJsonCommand());
+        $this->addCommands([
+            new InitJsonCommand(),
+            new KeepAliveJsonCommand(),
+        ]);
     }
 }
 

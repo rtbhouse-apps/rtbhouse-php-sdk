@@ -1,3 +1,7 @@
+# v10.1.0
+
+- Added support for `symfony/console`, `symfony/filesystem`, `symfony/lock` versions `7.x.` and `8.x.`.
+
 # v10.0.0
 
 ## Breaking changes
